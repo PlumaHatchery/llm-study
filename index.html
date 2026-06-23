@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>G検定 学習ハブ</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <button id="back-btn" class="icon-btn" hidden aria-label="戻る">←</button>
+    <h1 id="app-title">学習ハブ</h1>
+    <button id="theme-btn" class="icon-btn" aria-label="テーマ切替">◐</button>
+  </header>
+
+  <main id="main">
+    <!-- ホーム -->
+    <section id="home-screen" class="screen">
+      <div class="hero">
+        <div class="hero-date" id="hero-date"></div>
+        <div class="hero-countdown" id="hero-countdown"></div>
+      </div>
+
+      <div class="card-block">
+        <h2 class="block-title">今日の予定</h2>
+        <div id="today-task" class="today-task">読み込み中…</div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">連続日数</div></div>
+        <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">記録した日</div></div>
+        <div class="stat"><div class="stat-num" id="stat-done">—</div><div class="stat-label">今日</div></div>
+      </div>
+
+      <button class="btn btn-primary" id="quick-log">今日の記録をつける</button>
+
+      <div class="card-block reminder">
+        <h2 class="block-title">Claudeクイズ運用</h2>
+        <p>読んだ範囲の最後に、チャットでこう投げる：</p>
+        <blockquote>「G検定の○○から確認問題を10問、4択で出して。1問ずつ。」</blockquote>
+        <p class="dim">間違えた問題は「なぜその選択肢が違うか」まで聞く。工数ゼロのクイズアプリ。</p>
+      </div>
+    </section>
+
+    <!-- 計画 -->
+    <section id="plan-screen" class="screen" hidden>
+      <div id="plan-content" class="md"></div>
+    </section>
+
+    <!-- 記録 -->
+    <section id="log-screen" class="screen" hidden>
+      <div class="card-block">
+        <h2 class="block-title">今日の記録 <span id="log-date" class="dim"></span></h2>
+        <label class="field-label">🏁 到達度</label>
+        <div id="log-status" class="seg">
+          <button data-v="達成">達成</button>
+          <button data-v="一部">一部</button>
+          <button data-v="未着手">未着手</button>
+        </div>
+        <label class="field-label">📝 問いの答え（1〜2文）</label>
+        <textarea id="log-answer" rows="3" placeholder="今日の📝に答える…"></textarea>
+        <label class="field-label">クイズ正答</label>
+        <div class="quiz-input">
+          <input id="log-quiz-correct" type="number" min="0" inputmode="numeric" placeholder="—" />
+          <span>/</span>
+          <input id="log-quiz-total" type="number" min="0" inputmode="numeric" placeholder="10" />
+        </div>
+        <div class="log-actions">
+          <button class="btn btn-primary" id="log-save">保存</button>
+          <button class="btn" id="log-copy">log.md形式でコピー</button>
+        </div>
+        <p id="log-saved-msg" class="dim save-msg" hidden></p>
+      </div>
+
+      <div class="card-block">
+        <h2 class="block-title">これまでの記録</h2>
+        <div id="log-history" class="log-history"></div>
+      </div>
+    </section>
+
+    <!-- コンテンツ -->
+    <section id="content-screen" class="screen" hidden>
+      <h2 class="block-title">ノート</h2>
+      <ul id="note-list" class="list"></ul>
+      <h2 class="block-title" style="margin-top:24px">暗記カード <span class="dim">（補助）</span></h2>
+      <ul id="deck-list" class="list"></ul>
+      <p class="hint">問題演習は計画どおり <strong>Claudeクイズ</strong>。カードは人名・年代・略語の丸暗記用。</p>
+    </section>
+
+    <!-- ノート閲覧 -->
+    <section id="note-screen" class="screen" hidden>
+      <div id="note-content" class="md"></div>
+    </section>
+
+    <!-- フラッシュカード学習 -->
+    <section id="study-screen" class="screen" hidden>
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <div id="card" class="flashcard">
+        <div class="card-face" id="card-front"></div>
+        <div class="card-face card-back" id="card-back" hidden></div>
+      </div>
+      <div class="study-actions">
+        <button id="show-btn" class="btn btn-primary">答えを見る</button>
+        <div id="rate-buttons" class="rate-buttons" hidden>
+          <button class="btn rate" data-q="0"><span>もう一度</span><small id="t-again"></small></button>
+          <button class="btn rate" data-q="1"><span>むずかしい</span><small id="t-hard"></small></button>
+          <button class="btn rate" data-q="2"><span>ふつう</span><small id="t-good"></small></button>
+          <button class="btn rate" data-q="3"><span>かんたん</span><small id="t-easy"></small></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 完了 -->
+    <section id="done-screen" class="screen" hidden>
+      <div class="done-box">
+        <div class="done-emoji">🎉</div>
+        <h2>完了！</h2>
+        <p id="done-stats"></p>
+        <button id="done-back" class="btn btn-primary">戻る</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="home"><span class="ti">🏠</span><span>ホーム</span></button>
+    <button class="tab" data-tab="plan"><span class="ti">🗓</span><span>計画</span></button>
+    <button class="tab" data-tab="log"><span class="ti">✍️</span><span>記録</span></button>
+    <button class="tab" data-tab="content"><span class="ti">📚</span><span>コンテンツ</span></button>
+  </nav>
+
+  <script src="js/marked.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

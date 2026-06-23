@@ -1,0 +1,9 @@
+{
+  "decks": [
+    "decks/ai-history.json",
+    "decks/ml.json",
+    "decks/dl.json",
+    "decks/law.json",
+    "decks/abbr.json"
+  ]
+}

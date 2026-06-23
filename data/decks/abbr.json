@@ -1,0 +1,13 @@
+{
+  "id": "abbr",
+  "name": "略語・用語（暗記用）",
+  "description": "人名・年代・略語の丸暗記カード。問題演習はClaudeクイズで。",
+  "cards": [
+    { "id": "svm", "front": "SVM", "back": "Support Vector Machine（サポートベクターマシン）。マージン最大化で分類する教師あり手法。" },
+    { "id": "cnn", "front": "CNN", "back": "Convolutional Neural Network（畳み込みニューラルネットワーク）。主に画像認識。畳み込み＋プーリング。" },
+    { "id": "rnn", "front": "RNN", "back": "Recurrent Neural Network（再帰型ニューラルネットワーク）。系列データ向け。勾配消失に弱い。" },
+    { "id": "gan", "front": "GAN", "back": "Generative Adversarial Network（敵対的生成ネットワーク）。生成器と識別器を競わせる。" },
+    { "id": "f-value", "front": "F値（F1スコア）", "back": "適合率と再現率の調和平均。2PR/(P+R)。両者のバランスを見る指標。" },
+    { "id": "hinton", "front": "ジェフリー・ヒントン", "back": "ディープラーニングの第一人者。誤差逆伝播法の普及、2012年AlexNetで第3次ブームの火付け役。" }
+  ]
+}
