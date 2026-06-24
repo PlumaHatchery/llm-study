@@ -434,47 +434,85 @@ function startStudy(deck) {
   }
   let queue = dueC.concat(newC.slice(0, NEW_PER_SESSION));
   if (queue.length === 0) queue = deck.cards.slice();  // 全部終わってたら通し復習
-  session = { deck, queue, total: queue.length, reviewed:0, again:0 };
+  session = { deck, queue, total: queue.length, reviewed:0, again:0, answered:false };
   showScreen('study');
   nextCard();
 }
+
+function shuffle(a) { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* 同一デッキの他カードの裏をダミー選択肢にして4択を作る */
+function buildChoices(deck, card) {
+  const others = shuffle(deck.cards.filter(c => c.id !== card.id && c.back !== card.back));
+  const distract = others.slice(0, 3).map(c => c.back);
+  const opts = shuffle([card.back, ...distract]);
+  return { opts, correct: opts.indexOf(card.back) };
+}
+
 function nextCard() {
   if (!session || session.queue.length === 0) return finishStudy();
   session.current = session.queue[0];
+  session.answered = false;
+  session.choices = buildChoices(session.deck, session.current);
+
   $('card-front').textContent = session.current.front;
-  const back = $('card-back'); back.textContent = session.current.back; back.hidden = true;
-  $('show-btn').hidden = false; $('rate-buttons').hidden = true;
-  const done = session.total - session.queue.length;
-  $('progress-fill').style.width = Math.round(done/session.total*100)+'%';
+  $('study-count').textContent = `${session.deck.name}　${session.total - session.queue.length + 1} / ${session.total}`;
+
+  const box = $('mc-options');
+  box.innerHTML = session.choices.opts.map((t, i) =>
+    `<button class="mc-opt" data-i="${i}"><span class="mc-key">${i+1}</span><span>${escapeHtml(t)}</span></button>`).join('');
+
+  $('mc-result').hidden = true;
+  $('mc-next').hidden = true;
+  $('progress-fill').style.width = Math.round((session.total - session.queue.length)/session.total*100)+'%';
 }
-function revealAnswer() {
-  $('card-back').hidden = false; $('show-btn').hidden = true; $('rate-buttons').hidden = false;
-  const st = cardState(session.deck.id+':'+session.current.id);
-  $('t-again').textContent = previewLabel(st,0);
-  $('t-hard').textContent  = previewLabel(st,1);
-  $('t-good').textContent  = previewLabel(st,2);
-  $('t-easy').textContent  = previewLabel(st,3);
-}
-function rateCard(q) {
+
+function selectOption(idx) {
+  if (!session || session.answered) return;
+  session.answered = true;
+  const correct = idx === session.choices.correct;
+
+  $('mc-options').querySelectorAll('.mc-opt').forEach(b => {
+    const i = +b.dataset.i;
+    b.disabled = true;
+    if (i === session.choices.correct) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+  });
+
+  const res = $('mc-result');
+  res.className = 'mc-result ' + (correct ? 'ok' : 'ng');
+  res.textContent = correct ? '✓ 正解' : '✗ 不正解（正解は緑）';
+  res.hidden = false;
+  $('mc-next').hidden = false;
+  $('mc-next').focus();
+
+  // SRS反映：正解=ふつう(2) / 不正解=もう一度(0)
+  const q = correct ? 2 : 0;
   const key = session.deck.id+':'+session.current.id;
   progress[key] = schedule(cardState(key), q); jsave(SRS_KEY, progress);
   session.queue.shift();
   if (q === 0) { session.again++; session.queue.splice(Math.min(session.queue.length,4),0,session.current); }
   else session.reviewed++;
-  nextCard();
 }
+
 function finishStudy() {
   showScreen('done');
-  $('done-stats').textContent = `${session.reviewed}枚を学習` + (session.again?`（再出題 ${session.again}回）`:'');
+  const total = session.reviewed + session.again;
+  const acc = total ? Math.round(session.reviewed/total*100) : 0;
+  $('done-stats').textContent = `正解 ${session.reviewed} / 出題 ${total}（正答率 ${acc}%）` + (session.again?`　再出題 ${session.again}回`:'');
 }
-$('show-btn').addEventListener('click', revealAnswer);
-$('rate-buttons').addEventListener('click', (e) => { const b=e.target.closest('.rate'); if(b) rateCard(+b.dataset.q); });
+
+$('mc-options').addEventListener('click', (e) => { const b = e.target.closest('.mc-opt'); if (b && !b.disabled) selectOption(+b.dataset.i); });
+$('mc-next').addEventListener('click', nextCard);
 $('done-back').addEventListener('click', () => openTab('content'));
 document.addEventListener('keydown', (e) => {
   if (SCREENS.study.hidden) return;
-  const rating = $('rate-buttons');
-  if (e.code === 'Space') { e.preventDefault(); if (rating.hidden) revealAnswer(); }
-  else if (!rating.hidden && ['1','2','3','4'].includes(e.key)) rateCard(+e.key-1);
+  if (!session.answered && ['1','2','3','4'].includes(e.key)) {
+    const b = $('mc-options').querySelector(`.mc-opt[data-i="${+e.key-1}"]`);
+    if (b) selectOption(+e.key-1);
+  } else if (session.answered && (e.code === 'Enter' || e.code === 'Space')) {
+    e.preventDefault(); nextCard();
+  }
 });
 
 /* ================================================================== *

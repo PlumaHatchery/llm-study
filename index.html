@@ -103,22 +103,16 @@
       <div id="note-content" class="md"></div>
     </section>
 
-    <!-- フラッシュカード学習 -->
+    <!-- 暗記カード学習（4択） -->
     <section id="study-screen" class="screen" hidden>
       <div class="progress-bar"><div id="progress-fill"></div></div>
+      <div class="study-count" id="study-count"></div>
       <div id="card" class="flashcard">
         <div class="card-face" id="card-front"></div>
-        <div class="card-face card-back" id="card-back" hidden></div>
       </div>
-      <div class="study-actions">
-        <button id="show-btn" class="btn btn-primary">答えを見る</button>
-        <div id="rate-buttons" class="rate-buttons" hidden>
-          <button class="btn rate" data-q="0"><span>もう一度</span><small id="t-again"></small></button>
-          <button class="btn rate" data-q="1"><span>むずかしい</span><small id="t-hard"></small></button>
-          <button class="btn rate" data-q="2"><span>ふつう</span><small id="t-good"></small></button>
-          <button class="btn rate" data-q="3"><span>かんたん</span><small id="t-easy"></small></button>
-        </div>
-      </div>
+      <div id="mc-options" class="mc-options"></div>
+      <div id="mc-result" class="mc-result" hidden></div>
+      <button id="mc-next" class="btn btn-primary" hidden>次へ</button>
     </section>
 
     <!-- 完了 -->
