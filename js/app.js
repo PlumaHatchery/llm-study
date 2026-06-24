@@ -383,9 +383,39 @@ async function openNote(n) {
   try {
     const md = await fetchText('content/' + n.file);
     $('note-content').innerHTML = renderMarkdown(md);
+    await processMermaid($('note-content'));
   } catch (e) {
     $('note-content').innerHTML = '<p class="dim">読み込みエラー：' + e.message + '</p>';
   }
+}
+
+/* Mermaid 図を必要な時だけ遅延ロードして描画 */
+let mermaidLoading = null;
+function loadMermaid() {
+  if (window.mermaid) return Promise.resolve();
+  if (mermaidLoading) return mermaidLoading;
+  mermaidLoading = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'js/mermaid.min.js'; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+  return mermaidLoading;
+}
+async function processMermaid(container) {
+  const blocks = container.querySelectorAll('code.language-mermaid');
+  if (!blocks.length) return;
+  try { await loadMermaid(); } catch { return; }
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose', fontFamily: 'inherit', flowchart: { htmlLabels: true, useMaxWidth: true } });
+  const nodes = [];
+  blocks.forEach(code => {
+    const div = document.createElement('div');
+    div.className = 'mermaid';
+    div.textContent = code.textContent;
+    code.closest('pre').replaceWith(div);
+    nodes.push(div);
+  });
+  try { await mermaid.run({ nodes }); } catch (e) { console.error('mermaid', e); }
 }
 
 /* ================================================================== *
