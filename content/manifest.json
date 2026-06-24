@@ -1,11 +1,21 @@
 {
   "plan": "plan.md",
+  "english": {
+    "active": true,
+    "label": "英語",
+    "minutes": "10〜15分",
+    "daily": "単語カード「英単語」を5〜10枚 ＋ 短い英文を1本読む",
+    "rampDate": "2026-07-05",
+    "rampDaily": "本格化：単語15枚 ＋ リーディング15分 ＋ 音読/シャドーイング",
+    "note": "notes/english.md"
+  },
   "notes": [
     { "id": "cheatsheet", "title": "チートシート（転記先）", "file": "notes/cheatsheet.md", "desc": "本番持ち込み用。読みながら転記する" },
     { "id": "ai-history", "title": "① AIの歴史・動向", "file": "notes/ai-history.md", "desc": "ブーム・人名・年代" },
     { "id": "ml-methods", "title": "② 機械学習の手法", "file": "notes/ml-methods.md", "desc": "教師あり/なし・評価指標（本丸）" },
     { "id": "deep-learning", "title": "③ ディープラーニング", "file": "notes/deep-learning.md", "desc": "NN・CNN・RNN・Transformer" },
     { "id": "law-ethics", "title": "④ 法律・倫理・社会実装", "file": "notes/law-ethics.md", "desc": "シートが得点力" },
-    { "id": "math-stats", "title": "⑤ 数理・統計", "file": "notes/math-stats.md", "desc": "基礎だけ・深追い禁止" }
+    { "id": "math-stats", "title": "⑤ 数理・統計", "file": "notes/math-stats.md", "desc": "基礎だけ・深追い禁止" },
+    { "id": "english", "title": "🇬🇧 英語学習", "file": "notes/english.md", "desc": "単語＋リーディング。毎日の習慣" }
   ]
 }

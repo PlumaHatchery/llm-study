@@ -4,6 +4,7 @@
     "decks/ml.json",
     "decks/dl.json",
     "decks/law.json",
-    "decks/abbr.json"
+    "decks/abbr.json",
+    "decks/english.json"
   ]
 }

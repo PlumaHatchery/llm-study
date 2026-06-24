@@ -25,8 +25,16 @@
       </div>
 
       <div class="card-block">
-        <h2 class="block-title">今日の予定</h2>
-        <div id="today-task" class="today-task">読み込み中…</div>
+        <div class="today-head">
+          <h2 class="block-title">今日のタスク</h2>
+          <span id="today-done-badge" class="done-badge" hidden>✓ 達成</span>
+        </div>
+        <p class="dim today-lead">これだけやればOK 👇</p>
+        <div id="today-checklist" class="checklist">読み込み中…</div>
+        <details id="gken-detail" class="gken-detail" hidden>
+          <summary>G検定タスクの詳細（手順・📝）</summary>
+          <div id="today-gken-detail" class="md"></div>
+        </details>
       </div>
 
       <div class="stat-row">

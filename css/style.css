@@ -81,9 +81,21 @@ body {
 .hero-date { font-size: 14px; color: var(--text-dim); }
 .hero-countdown { font-size: 24px; font-weight: 800; margin-top: 2px; }
 .card-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
-.today-task { font-size: 15px; }
-.today-task h2 { font-size: 16px; margin: 0 0 6px; }
-.today-task p { margin: 6px 0; }
+.today-head { display: flex; align-items: center; justify-content: space-between; }
+.today-lead { margin: 0 0 12px; font-size: 13px; }
+.done-badge { font-size: 12px; font-weight: 700; color: var(--good); background: color-mix(in srgb, var(--good) 18%, transparent); padding: 3px 10px; border-radius: 999px; }
+
+.checklist { display: flex; flex-direction: column; gap: 10px; }
+.check-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); cursor: pointer; }
+.check-item input { width: 22px; height: 22px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.ci-body { display: flex; flex-direction: column; min-width: 0; }
+.ci-main { font-weight: 700; font-size: 15px; }
+.ci-sub { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+.check-item.done { border-color: var(--good); }
+.check-item.done .ci-main, .check-item.done .ci-sub { text-decoration: line-through; color: var(--text-dim); }
+.gken-detail { margin-top: 12px; }
+.gken-detail summary { font-size: 13px; color: var(--primary); cursor: pointer; padding: 4px 0; }
+.gken-detail .md { font-size: 14px; margin-top: 8px; }
 .reminder blockquote { margin: 8px 0; padding: 10px 14px; background: color-mix(in srgb, var(--primary) 10%, transparent); border-left: 3px solid var(--primary); border-radius: 8px; font-weight: 600; }
 .reminder p { margin: 6px 0; font-size: 14px; }
 

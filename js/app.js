@@ -9,6 +9,7 @@
 const EXAM_DATE = new Date(2026, 6, 4);   // 2026-07-04 G検定本番
 const LOG_KEY = 'mystudy.log.v1';
 const SRS_KEY = 'mystudy.progress.v1';
+const TODAY_KEY = 'mystudy.today.v1';
 const NEW_PER_SESSION = 20;
 const DAY = 86400000;
 
@@ -76,8 +77,8 @@ function renderHome() {
   else if (days === 0) cd.textContent = '🎯 今日が本番！';
   else cd.textContent = 'G検定 おつかれさまでした';
 
-  // 今日の予定（plan.md から抽出）
-  $('today-task').innerHTML = renderMarkdown(todaysTask(now));
+  // 今日のタスク（G検定＋英語を一括チェックリスト化）
+  buildTodayChecklist(now);
 
   // 統計
   const log = jload(LOG_KEY);
@@ -85,6 +86,66 @@ function renderHome() {
   $('stat-total').textContent = Object.keys(log).length;
   const todayEntry = log[dateKey(now)];
   $('stat-done').textContent = todayEntry ? (todayEntry.status === '達成' ? '達成' : todayEntry.status) : '未';
+}
+
+/* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示 */
+function buildTodayChecklist(now) {
+  const items = [];
+
+  // G検定
+  const gkenSection = todaysTask(now);
+  const hasGken = !gkenSection.startsWith('_');   // 見つからない時は斜体プレースホルダ
+  if (hasGken) {
+    const { time, title } = parseGkenTitle(gkenSection.split('\n')[0]);
+    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title });
+  }
+
+  // 英語（毎日ルーティン）
+  const en = contentManifest && contentManifest.english;
+  if (en && en.active) {
+    const ramped = en.rampDate && dateKey(now) >= en.rampDate;
+    const daily = (ramped && en.rampDaily) ? en.rampDaily : en.daily;
+    const mins = ramped ? '本格' : (en.minutes || '');
+    items.push({ id: 'english', main: (en.label || '英語') + (mins ? `（${mins}）` : ''), sub: daily });
+  }
+
+  const state = (jload(TODAY_KEY))[dateKey(now)] || {};
+  const box = $('today-checklist');
+  box.innerHTML = items.length ? items.map(it => `
+    <label class="check-item ${state[it.id] ? 'done' : ''}" data-id="${it.id}">
+      <input type="checkbox" ${state[it.id] ? 'checked' : ''} />
+      <span class="ci-body"><span class="ci-main">${escapeHtml(it.main)}</span><span class="ci-sub">${escapeHtml(it.sub)}</span></span>
+    </label>`).join('') : '<p class="dim">今日のタスクはありません。</p>';
+
+  box.querySelectorAll('.check-item input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const id = inp.closest('.check-item').dataset.id;
+      const all = jload(TODAY_KEY); const day = all[dateKey(now)] || {};
+      day[id] = inp.checked; all[dateKey(now)] = day; jsave(TODAY_KEY, all);
+      inp.closest('.check-item').classList.toggle('done', inp.checked);
+      updateDoneBadge(items, now);
+    });
+  });
+
+  // G検定の手順詳細
+  const det = $('gken-detail');
+  if (hasGken) { det.hidden = false; $('today-gken-detail').innerHTML = renderMarkdown(gkenSection); }
+  else det.hidden = true;
+
+  updateDoneBadge(items, now);
+}
+
+function updateDoneBadge(items, now) {
+  const state = (jload(TODAY_KEY))[dateKey(now)] || {};
+  $('today-done-badge').hidden = !(items.length > 0 && items.every(it => state[it.id]));
+}
+
+function parseGkenTitle(headingLine) {
+  const s = headingLine.replace(/^#+\s*/, '').trim();
+  const parts = s.split('|');
+  if (parts.length >= 3) return { time: parts[1].trim(), title: parts.slice(2).join('|').trim() };
+  const m = s.match(/^\d{1,2}\/\d{1,2}\([^)]*\)\s*(.*)$/);
+  return { time: '', title: (m ? m[1] : s).trim() };
 }
 
 function todaysTask(d) {

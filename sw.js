@@ -1,5 +1,5 @@
 /* My Study — Service Worker (オフライン対応) */
-const CACHE = 'mystudy-v3';
+const CACHE = 'mystudy-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -15,12 +15,14 @@ const ASSETS = [
   './content/notes/deep-learning.md',
   './content/notes/law-ethics.md',
   './content/notes/math-stats.md',
+  './content/notes/english.md',
   './data/manifest.json',
   './data/decks/ai-history.json',
   './data/decks/ml.json',
   './data/decks/dl.json',
   './data/decks/law.json',
   './data/decks/abbr.json',
+  './data/decks/english.json',
 ];
 
 self.addEventListener('install', (e) => {

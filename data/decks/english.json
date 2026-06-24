@@ -1,0 +1,19 @@
+{
+  "id": "english",
+  "name": "英単語",
+  "description": "語彙の暗記。自分のレベルに合わせて入れ替えてOK",
+  "cards": [
+    { "id": "e1", "front": "inevitable", "back": "避けられない、必然の／The change was inevitable.（その変化は避けられなかった）" },
+    { "id": "e2", "front": "comprehensive", "back": "包括的な、総合的な／a comprehensive guide（包括的なガイド）" },
+    { "id": "e3", "front": "implement", "back": "(計画などを)実行する、実装する／We will implement the new policy.（新方針を実行する）" },
+    { "id": "e4", "front": "subtle", "back": "微妙な、繊細な／a subtle difference（微妙な違い）" },
+    { "id": "e5", "front": "robust", "back": "頑丈な、強固な／a robust system（堅牢なシステム）" },
+    { "id": "e6", "front": "leverage", "back": "活用する、てこ入れする／leverage data to improve（データを活用して改善する）" },
+    { "id": "e7", "front": "ambiguous", "back": "曖昧な、多義的な／an ambiguous answer（曖昧な答え）" },
+    { "id": "e8", "front": "feasible", "back": "実現可能な／a feasible plan（実現可能な計画）" },
+    { "id": "e9", "front": "emerge", "back": "現れる、台頭する／New trends emerge every year.（毎年新しい潮流が現れる）" },
+    { "id": "e10", "front": "mitigate", "back": "(影響を)和らげる、軽減する／mitigate the risk（リスクを軽減する）" },
+    { "id": "e11", "front": "coherent", "back": "首尾一貫した、筋の通った／a coherent argument（筋の通った主張）" },
+    { "id": "e12", "front": "thorough", "back": "徹底的な、入念な／a thorough review（入念な見直し）" }
+  ]
+}
