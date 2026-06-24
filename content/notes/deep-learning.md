@@ -66,6 +66,14 @@ flowchart LR
 
 📝 **確認**：勾配消失の発生機序と緩和策3つ／ResNetの残差接続が効く理由／AttentionがRNNに対し解決した点とO(n²)の代償。
 
+## 頻出ひっかけ
+- 勾配消失は **シグモイド/tanh で悪化、ReLU で緩和**。
+- **CNN＝画像（並進不変）／RNN＝系列**。役割を取り違えない。
+- **ドロップアウトは学習時のみ**（推論時は全ユニットを使う）。
+- **Attention は並列計算可・長距離依存に強い**が、計算量は **O(n²)**。
+- **ResNet＝残差接続（恒等経路）** で劣化問題を解決。
+- ソフトマックス＋**交差エントロピー**の組合せが定番（MSEではない）。
+
 ## 【出典】
 - LSTM（1997, Hochreiter & Schmidhuber）／勾配消失の定式化（1991）— Jürgen Schmidhuber（Wikipedia 英語）　https://en.wikipedia.org/wiki/J%C3%BCrgen_Schmidhuber
 - 残差ネットワーク ResNet（残差接続, 2015）（Wikipedia 英語）　https://en.wikipedia.org/wiki/Residual_neural_network

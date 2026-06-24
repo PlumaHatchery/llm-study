@@ -70,6 +70,13 @@ flowchart TD
 
 📝 **確認**：FP/FNのコストが非対称な実例を各1つ＋対応指標／バギングとブースティングが下げるのはバイアス・バリアンスのどちら？
 
+## 頻出ひっかけ
+- **適合率＝TP/(TP+FP)**（誤検知）、**再現率＝TP/(TP+FN)**（見逃し）。分母を逆にしない。
+- **バギング→バリアンス低減**、**ブースティング→バイアス低減**。
+- **L1（ラッソ）＝スパース化・特徴選択**、**L2（リッジ）＝重み縮小**。
+- **クラスタリング・PCAは教師なし**（分類は教師あり）。
+- **Accuracyは不均衡データで誤誘導**するので、Precision/Recall/F1やPR-AUCを見る。
+
 ## 【出典】
 - アンサンブル学習（バギング=バリアンス低減／ブースティング=バイアス低減）AIsmiley　https://aismiley.co.jp/ai_news/ensemble_learning/
 - バイアスとバリアンスのトレードオフ（シス担のミカタ）　https://kobesoft.co.jp/mikata/words/ai-ml/bias-variance-tradeoff/
