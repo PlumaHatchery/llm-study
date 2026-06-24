@@ -3,17 +3,17 @@
   "name": "英単語",
   "description": "語彙の暗記。自分のレベルに合わせて入れ替えてOK",
   "cards": [
-    { "id": "e1", "front": "inevitable", "back": "避けられない、必然の／The change was inevitable.（その変化は避けられなかった）" },
-    { "id": "e2", "front": "comprehensive", "back": "包括的な、総合的な／a comprehensive guide（包括的なガイド）" },
-    { "id": "e3", "front": "implement", "back": "(計画などを)実行する、実装する／We will implement the new policy.（新方針を実行する）" },
-    { "id": "e4", "front": "subtle", "back": "微妙な、繊細な／a subtle difference（微妙な違い）" },
-    { "id": "e5", "front": "robust", "back": "頑丈な、強固な／a robust system（堅牢なシステム）" },
-    { "id": "e6", "front": "leverage", "back": "活用する、てこ入れする／leverage data to improve（データを活用して改善する）" },
-    { "id": "e7", "front": "ambiguous", "back": "曖昧な、多義的な／an ambiguous answer（曖昧な答え）" },
-    { "id": "e8", "front": "feasible", "back": "実現可能な／a feasible plan（実現可能な計画）" },
-    { "id": "e9", "front": "emerge", "back": "現れる、台頭する／New trends emerge every year.（毎年新しい潮流が現れる）" },
-    { "id": "e10", "front": "mitigate", "back": "(影響を)和らげる、軽減する／mitigate the risk（リスクを軽減する）" },
-    { "id": "e11", "front": "coherent", "back": "首尾一貫した、筋の通った／a coherent argument（筋の通った主張）" },
-    { "id": "e12", "front": "thorough", "back": "徹底的な、入念な／a thorough review（入念な見直し）" }
+    { "id": "e1", "front": "inevitable", "back": "避けられない、必然の／The change was inevitable.（その変化は避けられなかった）", "explain": "in-(否定)＋evitable(避けられる)で『避けられない』。結果が確実に起こるニュアンス。副詞 inevitably（必然的に）も頻出。類語 unavoidable。" },
+    { "id": "e2", "front": "comprehensive", "back": "包括的な、総合的な／a comprehensive guide（包括的なガイド）", "explain": "『漏れなく全体をカバーする』の意。comprehensive exam（総合試験）など。動詞 comprehend（理解する）と語源は同じだが、意味は『包括的』にシフト。comprehensible（理解できる）と混同注意。" },
+    { "id": "e3", "front": "implement", "back": "(計画などを)実行する、実装する／We will implement the new policy.（新方針を実行する）", "explain": "計画・制度・機能などを『実際に形にして動かす』。IT文脈では『実装する』。名詞では『道具』の意味もある。名詞 implementation（実装・施行）はエンジニアなら頻出。" },
+    { "id": "e4", "front": "subtle", "back": "微妙な、繊細な／a subtle difference（微妙な違い）", "explain": "発音は /sʌtl/ で b は黙字。『はっきりしないが確かにある、細やかな』。a subtle hint（それとないヒント）。ネガティブな『ずる賢い』寄りで使うこともある。" },
+    { "id": "e5", "front": "robust", "back": "頑丈な、強固な／a robust system（堅牢なシステム）", "explain": "外乱や負荷に強く壊れにくい。技術文脈では『（エラーや変動に対して）頑健な』。robust economy（力強い経済）のように『活発な』の意味でも使う。統計の robust（外れ値に強い）も同根。" },
+    { "id": "e6", "front": "leverage", "back": "活用する、てこ入れする／leverage data to improve（データを活用して改善する）", "explain": "名詞は『てこ・影響力』、動詞で『（既にあるものを）てこのように活用して効果を増幅する』。ビジネス頻出。発音は英 /ˈliːvərɪdʒ/ 米 /ˈlevərɪdʒ/。financial leverage（財務レバレッジ）など。" },
+    { "id": "e7", "front": "ambiguous", "back": "曖昧な、多義的な／an ambiguous answer（曖昧な答え）", "explain": "複数の解釈ができてどちらか定まらない『多義的な曖昧さ』。名詞 ambiguity。情報不足の vague（漠然と曖昧）とは別物で、ambiguous は『解釈が割れる』点がポイント。" },
+    { "id": "e8", "front": "feasible", "back": "実現可能な／a feasible plan（実現可能な計画）", "explain": "実行・実現が現実的に可能。technically feasible（技術的に実現可能）。possible が単に『あり得る』なのに対し、feasible は『実際にやれる見込みがある』の実務的ニュアンス。名詞 feasibility（実現可能性、F/S）。" },
+    { "id": "e9", "front": "emerge", "back": "現れる、台頭する／New trends emerge every year.（毎年新しい潮流が現れる）", "explain": "隠れていたものが『姿を現す・浮上する』。emerging markets（新興市場）、emergent（創発的な）。名詞 emergence（出現・創発）。複雑系で要素から全体の性質が立ち現れる『創発』もこの語。" },
+    { "id": "e10", "front": "mitigate", "back": "(影響を)和らげる、軽減する／mitigate the risk（リスクを軽減する）", "explain": "悪い影響・深刻さを『緩和する』。リスク管理で頻出（risk mitigation）。完全に無くす eliminate より弱く、『程度を下げる』。混同しやすい mediate（仲介する）とは別語。" },
+    { "id": "e11", "front": "coherent", "back": "首尾一貫した、筋の通った／a coherent argument（筋の通った主張）", "explain": "各部分が矛盾なくつながり『筋が通っている』。文章・議論・計画に使う。名詞 coherence（一貫性）。反対は incoherent（支離滅裂）。物理では『コヒーレント（位相が揃った）』。" },
+    { "id": "e12", "front": "thorough", "back": "徹底的な、入念な／a thorough review（入念な見直し）", "explain": "発音 /ˈθʌrə/。through（〜を通って）と綴りが似るが別語なので注意。『細部まで漏れなく徹底的に』。副詞 thoroughly（徹底的に、すっかり）も頻出。" }
   ]
 }

@@ -1,5 +1,5 @@
 /* My Study — Service Worker (オフライン対応) */
-const CACHE = 'mystudy-v8';
+const CACHE = 'mystudy-v9';
 const ASSETS = [
   './',
   './index.html',

@@ -186,6 +186,9 @@ textarea, input[type=number] { width: 100%; font: inherit; color: var(--text); b
 .mc-result { text-align: center; font-weight: 700; margin: 16px 0 12px; padding: 10px; border-radius: 12px; }
 .mc-result.ok { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
 .mc-result.ng { color: var(--again); background: color-mix(in srgb, var(--again) 12%, transparent); }
+.mc-explain { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+.mc-explain .ex-label { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+.mc-explain .ex-body { font-size: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
 
 /* 完了 */
 .done-box { text-align: center; padding: 48px 16px; }

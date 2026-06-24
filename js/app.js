@@ -463,6 +463,7 @@ function nextCard() {
     `<button class="mc-opt" data-i="${i}"><span class="mc-key">${i+1}</span><span>${escapeHtml(t)}</span></button>`).join('');
 
   $('mc-result').hidden = true;
+  $('mc-explain').hidden = true;
   $('mc-next').hidden = true;
   $('progress-fill').style.width = Math.round((session.total - session.queue.length)/session.total*100)+'%';
 }
@@ -483,6 +484,15 @@ function selectOption(idx) {
   res.className = 'mc-result ' + (correct ? 'ok' : 'ng');
   res.textContent = correct ? '✓ 正解' : '✗ 不正解（正解は緑）';
   res.hidden = false;
+
+  // 解説（背景つき）
+  const ex = $('mc-explain');
+  if (session.current.explain) {
+    ex.innerHTML = '<div class="ex-label">解説</div><div class="ex-body"></div>';
+    ex.querySelector('.ex-body').textContent = session.current.explain;
+    ex.hidden = false;
+  } else { ex.hidden = true; }
+
   $('mc-next').hidden = false;
   $('mc-next').focus();
 
