@@ -471,10 +471,19 @@ function startStudy(deck) {
 
 function shuffle(a) { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-/* 同一デッキの他カードの裏をダミー選択肢にして4択を作る */
+/* 4択の選択肢を作る。
+   カードに distractors（手書きの紛らわしい誤答）があればそれを使い、
+   なければ同一デッキの他カードの裏から補う（重複は除く）。 */
 function buildChoices(deck, card) {
-  const others = shuffle(deck.cards.filter(c => c.id !== card.id && c.back !== card.back));
-  const distract = others.slice(0, 3).map(c => c.back);
+  let distract = [];
+  if (Array.isArray(card.distractors) && card.distractors.length) {
+    distract = shuffle(card.distractors.slice()).slice(0, 3);
+  }
+  if (distract.length < 3) {
+    const used = new Set([card.back, ...distract]);
+    const pool = shuffle(deck.cards.filter(c => c.id !== card.id && !used.has(c.back)).map(c => c.back));
+    while (distract.length < 3 && pool.length) distract.push(pool.pop());
+  }
   const opts = shuffle([card.back, ...distract]);
   return { opts, correct: opts.indexOf(card.back) };
 }
