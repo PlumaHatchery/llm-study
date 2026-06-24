@@ -91,8 +91,11 @@ function todaysTask(d) {
   if (!planText) return '_計画を読み込み中…_';
   const key = mdKey(d);
   const lines = planText.split('\n');
-  // 1) "## 6/24..." 見出しセクション
+  // 1) "## 6/24..." 見出しセクション（コードフェンス内は無視）
+  let inFence = false;
   for (let i = 0; i < lines.length; i++) {
+    if (/^```/.test(lines[i])) { inFence = !inFence; continue; }
+    if (inFence) continue;
     const m = lines[i].match(/^##\s+(\d{1,2})\/(\d{1,2})/);
     if (m && `${+m[1]}/${+m[2]}` === key) {
       const out = [lines[i]];
