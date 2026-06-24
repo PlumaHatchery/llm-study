@@ -86,13 +86,17 @@ body {
 .done-badge { font-size: 12px; font-weight: 700; color: var(--good); background: color-mix(in srgb, var(--good) 18%, transparent); padding: 3px 10px; border-radius: 999px; }
 
 .checklist { display: flex; flex-direction: column; gap: 10px; }
-.check-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); cursor: pointer; }
-.check-item input { width: 22px; height: 22px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.check-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); }
+.ci-check { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.ci-check input { width: 22px; height: 22px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
 .ci-body { display: flex; flex-direction: column; min-width: 0; }
 .ci-main { font-weight: 700; font-size: 15px; }
 .ci-sub { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
 .check-item.done { border-color: var(--good); }
 .check-item.done .ci-main, .check-item.done .ci-sub { text-decoration: line-through; color: var(--text-dim); }
+.ci-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-left: 34px; }
+.ci-btn { border: 1px solid var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); font-weight: 600; font-size: 13px; padding: 8px 12px; border-radius: 999px; cursor: pointer; }
+.ci-btn:active { transform: scale(.96); }
 .gken-detail { margin-top: 12px; }
 .gken-detail summary { font-size: 13px; color: var(--primary); cursor: pointer; padding: 4px 0; }
 .gken-detail .md { font-size: 14px; margin-top: 8px; }

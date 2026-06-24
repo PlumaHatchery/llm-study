@@ -88,7 +88,8 @@ function renderHome() {
   $('stat-done').textContent = todayEntry ? (todayEntry.status === '達成' ? '達成' : todayEntry.status) : '未';
 }
 
-/* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示 */
+/* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示。
+   各タスクから、対応するノート/暗記カードを直接開けるボタンを付ける。 */
 function buildTodayChecklist(now) {
   const items = [];
 
@@ -97,7 +98,12 @@ function buildTodayChecklist(now) {
   const hasGken = !gkenSection.startsWith('_');   // 見つからない時は斜体プレースホルダ
   if (hasGken) {
     const { time, title } = parseGkenTitle(gkenSection.split('\n')[0]);
-    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title });
+    const { noteIds, deckIds } = refsFromSection(gkenSection);
+    const actions = [];
+    noteIds.forEach(id => actions.push({ type: 'note', id, label: '📖 ' + noteTitle(id) }));
+    deckIds.forEach(id => actions.push({ type: 'deck', id, label: '🃏 ' + deckName(id) }));
+    if (actions.length === 0) actions.push({ type: 'tab', id: 'content', label: '📚 コンテンツを開く' });
+    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title, actions });
   }
 
   // 英語（毎日ルーティン）
@@ -106,18 +112,25 @@ function buildTodayChecklist(now) {
     const ramped = en.rampDate && dateKey(now) >= en.rampDate;
     const daily = (ramped && en.rampDaily) ? en.rampDaily : en.daily;
     const mins = ramped ? '本格' : (en.minutes || '');
-    items.push({ id: 'english', main: (en.label || '英語') + (mins ? `（${mins}）` : ''), sub: daily });
+    const actions = [{ type: 'note', id: 'english', label: '📖 英語ノート' }];
+    if (decks.find(d => d.id === 'english')) actions.push({ type: 'deck', id: 'english', label: '🃏 英単語カード' });
+    items.push({ id: 'english', main: (en.label || '英語') + (mins ? `（${mins}）` : ''), sub: daily, actions });
   }
 
   const state = (jload(TODAY_KEY))[dateKey(now)] || {};
   const box = $('today-checklist');
   box.innerHTML = items.length ? items.map(it => `
-    <label class="check-item ${state[it.id] ? 'done' : ''}" data-id="${it.id}">
-      <input type="checkbox" ${state[it.id] ? 'checked' : ''} />
-      <span class="ci-body"><span class="ci-main">${escapeHtml(it.main)}</span><span class="ci-sub">${escapeHtml(it.sub)}</span></span>
-    </label>`).join('') : '<p class="dim">今日のタスクはありません。</p>';
+    <div class="check-item ${state[it.id] ? 'done' : ''}" data-id="${it.id}">
+      <label class="ci-check">
+        <input type="checkbox" ${state[it.id] ? 'checked' : ''} />
+        <span class="ci-body"><span class="ci-main">${escapeHtml(it.main)}</span><span class="ci-sub">${escapeHtml(it.sub)}</span></span>
+      </label>
+      ${it.actions.length ? `<div class="ci-actions">${it.actions.map(a =>
+        `<button class="ci-btn" data-act="${a.type}" data-aid="${a.id}">${escapeHtml(a.label)}</button>`).join('')}</div>` : ''}
+    </div>`).join('') : '<p class="dim">今日のタスクはありません。</p>';
 
-  box.querySelectorAll('.check-item input').forEach(inp => {
+  // チェックボックス（消し込み）
+  box.querySelectorAll('.ci-check input').forEach(inp => {
     inp.addEventListener('change', () => {
       const id = inp.closest('.check-item').dataset.id;
       const all = jload(TODAY_KEY); const day = all[dateKey(now)] || {};
@@ -127,12 +140,43 @@ function buildTodayChecklist(now) {
     });
   });
 
+  // コンテンツへのジャンプボタン
+  box.querySelectorAll('.ci-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { act, aid } = btn.dataset;
+      if (act === 'note') openNoteById(aid);
+      else if (act === 'deck') { const d = decks.find(x => x.id === aid); if (d) { currentTab = 'content'; startStudy(d); } }
+      else if (act === 'tab') { currentTab = aid; openTab(aid); }
+    });
+  });
+
   // G検定の手順詳細
   const det = $('gken-detail');
   if (hasGken) { det.hidden = false; $('today-gken-detail').innerHTML = renderMarkdown(gkenSection); }
   else det.hidden = true;
 
   updateDoneBadge(items, now);
+}
+
+/* 計画の「📚 参照:」行から、ノートid・デッキidを取り出す */
+function refsFromSection(section) {
+  const line = section.split('\n').find(l => l.includes('📚')) || '';
+  const noteFrags = [...line.matchAll(/「([^」]+)」/g)].map(m => m[1]);
+  const deckIds = [...line.matchAll(/`([^`]+)`/g)].map(m => m[1]).filter(id => decks.some(d => d.id === id));
+  const notes = (contentManifest && contentManifest.notes) || [];
+  const noteIds = [];
+  noteFrags.forEach(frag => {
+    const n = notes.find(n => n.title.startsWith(frag) || frag.startsWith(n.title) || sameLead(n.title, frag));
+    if (n && !noteIds.includes(n.id)) noteIds.push(n.id);
+  });
+  return { noteIds, deckIds };
+}
+function sameLead(a, b) { const c = (a.trim()[0] || ''); return '①②③④⑤⑥⑦⑧'.includes(c) && b.trim()[0] === c; }
+function noteTitle(id) { const n = ((contentManifest && contentManifest.notes) || []).find(n => n.id === id); return n ? n.title : 'ノート'; }
+function deckName(id) { const d = decks.find(d => d.id === id); return d ? d.name : 'カード'; }
+function openNoteById(id) {
+  const n = ((contentManifest && contentManifest.notes) || []).find(n => n.id === id);
+  if (n) { currentTab = 'content'; openNote(n); }
 }
 
 function updateDoneBadge(items, now) {
