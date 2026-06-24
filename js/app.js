@@ -112,7 +112,8 @@ function buildTodayChecklist(now) {
     const ramped = en.rampDate && dateKey(now) >= en.rampDate;
     const daily = (ramped && en.rampDaily) ? en.rampDaily : en.daily;
     const mins = ramped ? '本格' : (en.minutes || '');
-    const actions = [{ type: 'note', id: 'english', label: '📖 英語ノート' }];
+    const enNotes = en.notes || [{ id: 'english', label: '📖 英語ノート' }];
+    const actions = enNotes.map(n => ({ type: 'note', id: n.id, label: n.label || ('📖 ' + noteTitle(n.id)) }));
     if (decks.find(d => d.id === 'english')) actions.push({ type: 'deck', id: 'english', label: '🃏 英単語カード' });
     items.push({ id: 'english', main: (en.label || '英語') + (mins ? `（${mins}）` : ''), sub: daily, actions });
   }

@@ -3,11 +3,14 @@
   "english": {
     "active": true,
     "label": "英語",
-    "minutes": "10〜15分",
-    "daily": "単語カード「英単語」を5〜10枚 ＋ 短い英文を1本読む",
+    "minutes": "15分",
+    "daily": "単語カード5〜10枚 ＋ 簡単な長文を1本読む",
     "rampDate": "2026-07-05",
-    "rampDaily": "本格化：単語15枚 ＋ リーディング15分 ＋ 音読/シャドーイング",
-    "note": "notes/english.md"
+    "rampDaily": "本格化：単語15枚 ＋ 長文1本（精読）＋ 音読/シャドーイング",
+    "notes": [
+      { "id": "english", "label": "📖 英語ノート" },
+      { "id": "english-reading", "label": "📖 今日の長文" }
+    ]
   },
   "notes": [
     { "id": "cheatsheet", "title": "チートシート（転記先）", "file": "notes/cheatsheet.md", "desc": "本番持ち込み用。読みながら転記する" },
@@ -16,6 +19,7 @@
     { "id": "deep-learning", "title": "③ ディープラーニング", "file": "notes/deep-learning.md", "desc": "NN・CNN・RNN・Transformer" },
     { "id": "law-ethics", "title": "④ 法律・倫理・社会実装", "file": "notes/law-ethics.md", "desc": "シートが得点力" },
     { "id": "math-stats", "title": "⑤ 数理・統計", "file": "notes/math-stats.md", "desc": "基礎だけ・深追い禁止" },
-    { "id": "english", "title": "🇬🇧 英語学習", "file": "notes/english.md", "desc": "単語＋リーディング。毎日の習慣" }
+    { "id": "english", "title": "🇬🇧 英語学習", "file": "notes/english.md", "desc": "単語＋リーディング。毎日の習慣" },
+    { "id": "english-reading", "title": "🇬🇧 今日の長文", "file": "notes/english-reading.md", "desc": "簡単な英文読解（訳・語彙つき）" }
   ]
 }
