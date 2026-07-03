@@ -45,7 +45,7 @@ function showScreen(name) {
   $('back-btn').hidden = !SUBSCREENS.has(name);
   const tab = SCREEN_TAB[name];
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  const titles = { home:'学習ハブ', plan:'計画', log:'記録', content:'コンテンツ', note:'ノート', study:'暗記カード', done:'完了' };
+  const titles = { home:'学習ハブ', plan:'計画', log:'記録', content:'コンテンツ', note:'ノート', study:'選択問題', done:'完了' };
   $('app-title').textContent = titles[name] || '学習ハブ';
   window.scrollTo(0, 0);
 }
@@ -79,6 +79,9 @@ function renderHome() {
 
   // 今日のタスク（G検定＋英語を一括チェックリスト化）
   buildTodayChecklist(now);
+  const p = todayPlan(now);
+  $('home-question').textContent = p.question || '今日の問いは計画に見つかりませんでした。計画タブを確認してください。';
+  loadHomeLog(now);
 
   // 統計
   const log = jload(LOG_KEY);
@@ -86,6 +89,70 @@ function renderHome() {
   $('stat-total').textContent = Object.keys(log).length;
   const todayEntry = log[dateKey(now)];
   $('stat-done').textContent = todayEntry ? (todayEntry.status === '達成' ? '達成' : todayEntry.status) : '未';
+}
+
+function plainText(md) {
+  return md.replace(/[*_`#>]/g, '').replace(/<br\s*\/?>/g, ' ').trim();
+}
+
+function todayPlan(now) {
+  const section = todaysTask(now);
+  const hasPlan = section && !section.startsWith('_');
+  const first = hasPlan ? section.split('\n')[0] : '';
+  const parsed = parseGkenTitle(first);
+  const purposeLine = (section.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || section.match(/🎯\s*(.+)/) || [])[1] || '';
+  const question = (section.match(/📝\s*\*\*問い\*\*:\s*(.+)/) || section.match(/📝\s*「?(.+?)」?$/m) || [])[1] || '';
+  const steps = [];
+  const lines = section.split('\n');
+  for (const line of lines) {
+    const m = line.match(/^\d+\.\s*(.+)/);
+    if (m) steps.push(plainText(m[1]));
+  }
+  if (!steps.length) {
+    const stepLine = (section.match(/\*\*手順\*\*:\s*(.+)/) || [])[1];
+    if (stepLine) stepLine.split('→').forEach(s => steps.push(plainText(s)));
+  }
+  return { section, hasPlan, time: parsed.time, title: parsed.title, purpose: plainText(purposeLine), question: plainText(question), steps };
+}
+
+async function copyQuizPrompt(plan, btn) {
+  const field = (plan.title || '今日の範囲').replace(/^インプット[①-⑥]?\s*/, '');
+  const text = `G検定の「${field}」から本番形式の4択確認問題を10問出して。1問ずつ出題し、回答後に正解・不正解の理由・紛らわしい選択肢の見分け方を説明して。`;
+  const orig = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = '✓ コピーしました'; }
+  catch { prompt('コピーしてください:', text); }
+  setTimeout(() => { btn.textContent = orig; }, 1600);
+}
+
+function renderPlanTimeline(now) {
+  const days = parsePlanDays();
+  const today = mdKey(now);
+  $('plan-timeline').innerHTML = days.length ? days.map(d => {
+    const cls = d.key === today ? 'today' : (dateOrderKey(d.key) < dateOrderKey(today) ? 'past' : '');
+    return `<div class="plan-day ${cls}">
+      <div class="plan-day-date">${escapeHtml(d.date)}</div>
+      <div class="plan-day-time">${escapeHtml(d.time || '')}</div>
+      <div class="plan-day-title">${escapeHtml(d.title)}</div>
+    </div>`;
+  }).join('') : '<p class="dim">計画を読み込めませんでした。</p>';
+  const el = $('plan-timeline').querySelector('.plan-day.today');
+  if (el) el.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+
+function parsePlanDays() {
+  if (!planText) return [];
+  return planText.split('\n').map(line => {
+    const m = line.match(/^##\s+(\d{1,2}\/\d{1,2})(?:\([^)]*\))?\|?([^|]*)\|?(.*)$/);
+    if (!m) return null;
+    const time = (m[2] || '').trim();
+    const title = (m[3] || time || m[1]).trim();
+    return { key: m[1], date: line.replace(/^##\s*/, '').split('|')[0].trim(), time, title };
+  }).filter(Boolean);
+}
+
+function dateOrderKey(key) {
+  const [m, d] = key.split('/').map(Number);
+  return m * 100 + d;
 }
 
 /* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示。
@@ -98,12 +165,14 @@ function buildTodayChecklist(now) {
   const hasGken = !gkenSection.startsWith('_');   // 見つからない時は斜体プレースホルダ
   if (hasGken) {
     const { time, title } = parseGkenTitle(gkenSection.split('\n')[0]);
+    const purpose = plainText((gkenSection.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || gkenSection.match(/🎯\s*(.+)/) || [])[1] || '');
     const { noteIds, deckIds } = refsFromSection(gkenSection);
     const actions = [];
     noteIds.forEach(id => actions.push({ type: 'note', id, label: '📖 ' + noteTitle(id) }));
     deckIds.forEach(id => actions.push({ type: 'deck', id, label: '🃏 ' + deckName(id) }));
     if (actions.length === 0) actions.push({ type: 'tab', id: 'content', label: '📚 コンテンツを開く' });
-    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title, actions });
+    actions.push({ type: 'quiz', id: '', label: '✨ Claudeクイズ文をコピー' });
+    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title + (purpose ? ` — ${purpose}` : ''), actions });
   }
 
   // 英語（毎日ルーティン）
@@ -148,6 +217,7 @@ function buildTodayChecklist(now) {
       if (act === 'note') openNoteById(aid);
       else if (act === 'deck') { const d = decks.find(x => x.id === aid); if (d) { currentTab = 'content'; startStudy(d); } }
       else if (act === 'tab') { currentTab = aid; openTab(aid); }
+      else if (act === 'quiz') copyQuizPrompt(todayPlan(now), btn);
     });
   });
 
@@ -228,13 +298,12 @@ function streak(log) {
   return n;
 }
 
-$('quick-log').addEventListener('click', () => { currentTab = 'log'; openTab('log'); });
-
 /* ================================================================== *
  * 計画
  * ================================================================== */
 function renderPlan() {
   showScreen('plan');
+  renderPlanTimeline(new Date());
   $('plan-content').innerHTML = planText
     ? highlightToday(renderMarkdown(planText))
     : '<p class="dim">計画を読み込めませんでした。</p>';
@@ -255,6 +324,7 @@ function highlightToday(html) {
  * 記録
  * ================================================================== */
 let logStatus = '';
+let homeLogStatus = '';
 
 function renderLog() {
   showScreen('log');
@@ -273,6 +343,43 @@ function renderLog() {
 
   renderHistory(log);
 }
+
+function loadHomeLog(now) {
+  const log = jload(LOG_KEY);
+  const e = log[dateKey(now)];
+  homeLogStatus = e ? e.status : '';
+  $('home-answer').value = e ? (e.answer || '') : '';
+  document.querySelectorAll('#home-status button').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === homeLogStatus));
+  const saved = Boolean(e);
+  $('home-log-state').hidden = !saved;
+  $('home-log-state').textContent = saved ? '保存済み' : '';
+}
+
+document.querySelectorAll('#home-status button').forEach(b => {
+  b.addEventListener('click', () => {
+    homeLogStatus = b.dataset.v;
+    document.querySelectorAll('#home-status button').forEach(x => x.classList.toggle('on', x === b));
+  });
+});
+
+$('home-save-log').addEventListener('click', () => {
+  const log = jload(LOG_KEY);
+  const prev = log[dateKey(new Date())] || {};
+  log[dateKey(new Date())] = {
+    status: homeLogStatus || '達成',
+    answer: $('home-answer').value.trim(),
+    quizCorrect: prev.quizCorrect ?? null,
+    quizTotal: prev.quizTotal ?? null,
+    ts: Date.now(),
+  };
+  jsave(LOG_KEY, log);
+  $('home-log-state').hidden = false;
+  $('home-log-state').textContent = '保存済み';
+  $('stat-streak').textContent = streak(log);
+  $('stat-total').textContent = Object.keys(log).length;
+  $('stat-done').textContent = log[dateKey(new Date())].status;
+});
 
 document.querySelectorAll('#log-status button').forEach(b => {
   b.addEventListener('click', () => {
@@ -334,7 +441,7 @@ function renderHistory(log) {
 function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ================================================================== *
- * コンテンツ（ノート + 暗記カード）
+ * コンテンツ（ノート + 選択問題）
  * ================================================================== */
 let contentManifest = null;
 let decks = [];
@@ -357,12 +464,12 @@ function renderContent() {
     li.addEventListener('click', () => openNote(n));
   });
 
-  // 暗記カード一覧
+  // 選択問題一覧
   const dl = $('deck-list');
   dl.innerHTML = decks.length ? decks.map((dk,i) => {
     const c = deckCounts(dk);
     return `<li class="list-card" data-deck="${i}">
-      <div class="lc-info"><div class="lc-title"></div>
+      <div class="lc-info"><div class="lc-title"></div><div class="lc-desc"></div>
         <div class="deck-badges">
           ${c.due?`<span class="badge due">復習 ${c.due}</span>`:''}
           ${c.new?`<span class="badge new">新規 ${c.new}</span>`:''}
@@ -374,6 +481,7 @@ function renderContent() {
     const li = dl.querySelector(`[data-deck="${i}"]`);
     if (!li) return;
     li.querySelector('.lc-title').textContent = dk.name;
+    li.querySelector('.lc-desc').textContent = dk.description || '';
     li.addEventListener('click', () => startStudy(dk));
   });
 }
@@ -420,7 +528,7 @@ async function processMermaid(container) {
 }
 
 /* ================================================================== *
- * フラッシュカード（SRS・補助機能）
+ * 選択問題（SRS・補助機能）
  * ================================================================== */
 let progress = jload(SRS_KEY);
 function cardState(k){ return progress[k] || { ease:2.5, interval:0, reps:0, due:0, isNew:true }; }

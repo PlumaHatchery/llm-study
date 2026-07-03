@@ -1,5 +1,8 @@
 {
   "decks": [
+    "decks/gtest-mix.json",
+    "decks/gtest-ml-dl.json",
+    "decks/gtest-law.json",
     "decks/ai-history.json",
     "decks/ml.json",
     "decks/dl.json",

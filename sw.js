@@ -1,5 +1,5 @@
 /* My Study — Service Worker (オフライン対応) */
-const CACHE = 'mystudy-v17';
+const CACHE = 'mystudy-v20';
 const ASSETS = [
   './',
   './index.html',
@@ -18,6 +18,9 @@ const ASSETS = [
   './content/notes/english.md',
   './content/notes/english-reading.md',
   './data/manifest.json',
+  './data/decks/gtest-mix.json',
+  './data/decks/gtest-ml-dl.json',
+  './data/decks/gtest-law.json',
   './data/decks/ai-history.json',
   './data/decks/ml.json',
   './data/decks/dl.json',
