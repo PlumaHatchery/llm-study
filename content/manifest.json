@@ -5,7 +5,7 @@
     "label": "英語",
     "minutes": "15分",
     "daily": "単語カード5〜10枚 ＋ 簡単な長文を1本読む",
-    "rampDate": "2026-07-05",
+    "rampDate": "2026-09-06",
     "rampDaily": "本格化：単語15枚 ＋ 長文1本（精読）＋ 音読/シャドーイング",
     "notes": [
       { "id": "english", "label": "📖 英語ノート" },
@@ -13,6 +13,7 @@
     ]
   },
   "notes": [
+    { "id": "roadmap", "title": "🗺 学習ロードマップ", "file": "roadmap.md", "desc": "AI専門への長期地図（G検定→E資格→情報工学→専門化）" },
     { "id": "cheatsheet", "title": "チートシート（転記先）", "file": "notes/cheatsheet.md", "desc": "本番持ち込み用。読みながら転記する" },
     { "id": "ai-history", "title": "① AIの歴史・動向", "file": "notes/ai-history.md", "desc": "ブーム・人名・年代" },
     { "id": "ml-methods", "title": "② 機械学習の手法", "file": "notes/ml-methods.md", "desc": "教師あり/なし・評価指標（本丸）" },

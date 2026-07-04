@@ -6,7 +6,7 @@
  *  - データはブラウザ内(localStorage)に保存。サーバー不要
  * ================================================================== */
 
-const EXAM_DATE = new Date(2026, 6, 4);   // 2026-07-04 G検定本番
+const EXAM_DATE = new Date(2026, 8, 5);   // 2026-09-05 G検定本番（第5回・オンライン）
 const LOG_KEY = 'mystudy.log.v1';
 const SRS_KEY = 'mystudy.progress.v1';
 const TODAY_KEY = 'mystudy.today.v1';
@@ -172,7 +172,7 @@ function buildTodayChecklist(now) {
     deckIds.forEach(id => actions.push({ type: 'deck', id, label: '🃏 ' + deckName(id) }));
     if (actions.length === 0) actions.push({ type: 'tab', id: 'content', label: '📚 コンテンツを開く' });
     actions.push({ type: 'quiz', id: '', label: '✨ Claudeクイズ文をコピー' });
-    items.push({ id: 'gken', main: 'G検定' + (time ? `（${time}）` : ''), sub: title + (purpose ? ` — ${purpose}` : ''), actions });
+    items.push({ id: 'gken', main: '計画タスク' + (time ? `（${time}）` : ''), sub: title + (purpose ? ` — ${purpose}` : ''), actions });
   }
 
   // 英語（毎日ルーティン）

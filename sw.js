@@ -1,5 +1,5 @@
 /* My Study — Service Worker (オフライン対応) */
-const CACHE = 'mystudy-v20';
+const CACHE = 'mystudy-v21';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   './manifest.webmanifest',
   './content/manifest.json',
   './content/plan.md',
+  './content/roadmap.md',
   './content/notes/cheatsheet.md',
   './content/notes/ai-history.md',
   './content/notes/ml-methods.md',
