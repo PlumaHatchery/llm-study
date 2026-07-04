@@ -77,8 +77,9 @@ function renderHome() {
   else if (days === 0) cd.textContent = '🎯 今日が本番！';
   else cd.textContent = 'G検定 おつかれさまでした';
 
-  // 今日のタスク（G検定＋英語を一括チェックリスト化）
+  // 今日のタスク（G検定＋英語を一括チェックリスト化）＋未完了の積み残し
   buildTodayChecklist(now);
+  buildBacklog(now);
   const p = todayPlan(now);
   $('home-question').textContent = p.question || '今日の問いは計画に見つかりませんでした。計画タブを確認してください。';
   loadHomeLog(now);
@@ -153,6 +154,62 @@ function parsePlanDays() {
 function dateOrderKey(key) {
   const [m, d] = key.split('/').map(Number);
   return m * 100 + d;
+}
+
+/* ================================================================== *
+ * 未完了タスク（バックログ）
+ * 計画の1日分＝1タスク。過去日で「完了もスキップもしていない」ものを表示。
+ * 自動で今日には積まない（取り返さない原則）。完了/スキップは自分で選ぶ。
+ * ================================================================== */
+function dateKeyFromMd(key, now) {
+  const [m, d] = key.split('/').map(Number);
+  return dateKey(new Date(now.getFullYear(), m - 1, d));
+}
+
+function buildBacklog(now) {
+  const todayOrd = dateOrderKey(mdKey(now));
+  const store = jload(TODAY_KEY);
+  const pending = parsePlanDays().filter(d => {
+    if (dateOrderKey(d.key) >= todayOrd) return false;
+    const st = store[dateKeyFromMd(d.key, now)] || {};
+    return !st.gken && !st.skip;
+  });
+  const box = $('backlog');
+  box.hidden = pending.length === 0;
+  if (!pending.length) return;
+  $('backlog-count').textContent = `${pending.length}件`;
+  $('backlog-list').innerHTML = pending.map(d => `
+    <div class="bl-item" data-key="${d.key}">
+      <button class="bl-head">${escapeHtml(d.date)}　${escapeHtml(d.title)}</button>
+      <div class="bl-detail md" hidden></div>
+      <div class="bl-actions">
+        <button class="ci-btn" data-bl="done">✓ 完了にする</button>
+        <button class="ci-btn bl-skip" data-bl="skip">スキップ</button>
+      </div>
+    </div>`).join('');
+
+  $('backlog-list').querySelectorAll('.bl-item').forEach(item => {
+    const key = item.dataset.key;
+    // タイトルタップで手順を展開
+    item.querySelector('.bl-head').addEventListener('click', () => {
+      const det = item.querySelector('.bl-detail');
+      if (det.hidden && !det.innerHTML) {
+        const [m, dd] = key.split('/').map(Number);
+        det.innerHTML = renderMarkdown(todaysTask(new Date(now.getFullYear(), m - 1, dd)));
+      }
+      det.hidden = !det.hidden;
+    });
+    // 完了 / スキップ
+    item.querySelectorAll('[data-bl]').forEach(btn => btn.addEventListener('click', () => {
+      const all = jload(TODAY_KEY);
+      const dk = dateKeyFromMd(key, now);
+      const day = all[dk] || {};
+      if (btn.dataset.bl === 'done') day.gken = true; else day.skip = true;
+      all[dk] = day;
+      jsave(TODAY_KEY, all);
+      buildBacklog(now);
+    }));
+  });
 }
 
 /* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示。

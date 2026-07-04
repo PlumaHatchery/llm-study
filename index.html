@@ -34,6 +34,11 @@
           <summary>計画タスクの詳細（手順・📝）</summary>
           <div id="today-gken-detail" class="md"></div>
         </details>
+        <details id="backlog" class="gken-detail backlog" hidden>
+          <summary>⏳ 未完了の計画タスク（<span id="backlog-count"></span>）</summary>
+          <p class="dim backlog-note">自動では今日に積まれません。「完了にする」か「スキップ」を選んで消化。</p>
+          <div id="backlog-list"></div>
+        </details>
       </div>
 
       <div class="card-block compact-log">

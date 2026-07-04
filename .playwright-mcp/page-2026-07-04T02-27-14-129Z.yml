@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading "学習ハブ" [level=1] [ref=e3]
+    - button "テーマ切替" [ref=e4] [cursor=pointer]: ◐
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - heading "今日のタスク" [level=2] [ref=e10]
+        - generic [ref=e11]: 読み込み中…
+      - generic [ref=e12]:
+        - heading "今日の問いと記録" [level=2] [ref=e14]
+        - paragraph [ref=e15]: 今日の問いを読み込み中…
+        - textbox "1〜2文で答える" [ref=e16]
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "達成" [ref=e19] [cursor=pointer]
+            - button "一部" [ref=e20] [cursor=pointer]
+            - button "未着手" [ref=e21] [cursor=pointer]
+          - button "保存" [ref=e22] [cursor=pointer]
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: "0"
+          - generic [ref=e26]: 連続日数
+        - generic [ref=e27]:
+          - generic [ref=e28]: "0"
+          - generic [ref=e29]: 記録した日
+        - generic [ref=e30]:
+          - generic [ref=e31]: —
+          - generic [ref=e32]: 今日
+  - navigation [ref=e33]:
+    - button "🏠 ホーム" [ref=e34] [cursor=pointer]:
+      - generic [ref=e35]: 🏠
+      - generic [ref=e36]: ホーム
+    - button "🗓 計画" [ref=e37] [cursor=pointer]:
+      - generic [ref=e38]: 🗓
+      - generic [ref=e39]: 計画
+    - button "✍️ 記録" [ref=e40] [cursor=pointer]:
+      - generic [ref=e41]: ✍️
+      - generic [ref=e42]: 記録
+    - button "📚 コンテンツ" [ref=e43] [cursor=pointer]:
+      - generic [ref=e44]: 📚
+      - generic [ref=e45]: コンテンツ
