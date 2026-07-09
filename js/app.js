@@ -173,36 +173,55 @@ function buildBacklog(now) {
     if (dateOrderKey(d.key) >= todayOrd) return false;
     const st = store[dateKeyFromMd(d.key, now)] || {};
     return !st.gken && !st.skip;
+  }).map(d => {
+    // その日のセクションと参照教材（ノート/デッキ）を取り出す
+    const [m, dd] = d.key.split('/').map(Number);
+    const section = todaysTask(new Date(now.getFullYear(), m - 1, dd));
+    return { ...d, section, refs: refsFromSection(section) };
   });
+
   const box = $('backlog');
   box.hidden = pending.length === 0;
   if (!pending.length) return;
+  // 未完了がある時は最初から開いておく（一度閉じたらその操作を尊重）
+  if (!box.dataset.opened) { box.open = true; box.dataset.opened = '1'; }
   $('backlog-count').textContent = `${pending.length}件`;
-  $('backlog-list').innerHTML = pending.map(d => `
+
+  $('backlog-list').innerHTML = pending.map(d => {
+    const refBtns = [
+      ...d.refs.noteIds.map(id => `<button class="ci-btn" data-act="note" data-aid="${id}">📖 ${escapeHtml(noteTitle(id))}</button>`),
+      ...d.refs.deckIds.map(id => `<button class="ci-btn" data-act="deck" data-aid="${id}">🃏 ${escapeHtml(deckName(id))}</button>`),
+    ].join('');
+    return `
     <div class="bl-item" data-key="${d.key}">
-      <button class="bl-head">${escapeHtml(d.date)}　${escapeHtml(d.title)}</button>
+      <button class="bl-head">${escapeHtml(d.date)}　${escapeHtml(d.title)}<span class="bl-toggle">手順 ▾</span></button>
       <div class="bl-detail md" hidden></div>
+      <div class="bl-actions">${refBtns}</div>
       <div class="bl-actions">
         <button class="ci-btn" data-bl="done">✓ 完了にする</button>
         <button class="ci-btn bl-skip" data-bl="skip">スキップ</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
-  $('backlog-list').querySelectorAll('.bl-item').forEach(item => {
-    const key = item.dataset.key;
+  $('backlog-list').querySelectorAll('.bl-item').forEach((item, i) => {
+    const d = pending[i];
     // タイトルタップで手順を展開
     item.querySelector('.bl-head').addEventListener('click', () => {
       const det = item.querySelector('.bl-detail');
-      if (det.hidden && !det.innerHTML) {
-        const [m, dd] = key.split('/').map(Number);
-        det.innerHTML = renderMarkdown(todaysTask(new Date(now.getFullYear(), m - 1, dd)));
-      }
+      if (det.hidden && !det.innerHTML) det.innerHTML = renderMarkdown(d.section);
       det.hidden = !det.hidden;
     });
+    // 教材を開く（そのまま学習できるように）
+    item.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', () => {
+      const { act, aid } = btn.dataset;
+      if (act === 'note') openNoteById(aid);
+      else if (act === 'deck') { const dk = decks.find(x => x.id === aid); if (dk) { currentTab = 'content'; startStudy(dk); } }
+    }));
     // 完了 / スキップ
     item.querySelectorAll('[data-bl]').forEach(btn => btn.addEventListener('click', () => {
       const all = jload(TODAY_KEY);
-      const dk = dateKeyFromMd(key, now);
+      const dk = dateKeyFromMd(d.key, now);
       const day = all[dk] || {};
       if (btn.dataset.bl === 'done') day.gken = true; else day.skip = true;
       all[dk] = day;
