@@ -22,23 +22,25 @@
       <div class="hero">
         <div class="hero-date" id="hero-date"></div>
         <div class="hero-countdown" id="hero-countdown"></div>
+        <div class="hero-alert" id="hero-alert" hidden></div>
       </div>
 
       <div class="card-block today-card">
         <div class="today-head">
           <h2 class="block-title">今日のタスク</h2>
-          <span id="today-done-badge" class="done-badge" hidden>✓ 全部完了</span>
+          <span id="today-done-badge" class="done-badge" hidden>✓ 今日ぶん完了</span>
         </div>
         <div id="today-checklist" class="checklist">読み込み中…</div>
         <details id="gken-detail" class="gken-detail" hidden>
           <summary>計画タスクの詳細（手順・📝）</summary>
           <div id="today-gken-detail" class="md"></div>
         </details>
-        <details id="backlog" class="gken-detail backlog" hidden>
-          <summary>⏳ 未完了の計画タスク（<span id="backlog-count"></span>）</summary>
-          <p class="dim backlog-note">自動では今日に積まれません。「完了にする」か「スキップ」を選んで消化。</p>
-          <div id="backlog-list"></div>
-        </details>
+        <div id="step-progress" class="step-progress" hidden>
+          <div class="sp-bar"><div id="sp-fill"></div></div>
+          <div id="sp-text" class="sp-text"></div>
+          <div id="sp-today" class="sp-today" hidden></div>
+          <p class="dim sp-note">計画は日付ではなく順送り。<strong>完了を押すまで次には進みません</strong>。</p>
+        </div>
       </div>
 
       <div class="card-block compact-log">

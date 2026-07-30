@@ -6,7 +6,7 @@ This repository is a static study hub/PWA for G検定 learning. Core UI files li
 - `index.html` defines the tabbed app shell.
 - `css/style.css` contains the mobile-first styling, dark mode, and bottom tab bar.
 - `js/app.js` handles screen routing, Markdown loading, localStorage records, and flashcard SRS.
-- `content/plan.md` is the study plan displayed in the Plan tab.
+- `content/plan.md` is the study plan displayed in the Plan tab. It is a **step queue, not a calendar**: each task is a `## S01|40分|タイトル` heading, and the app advances to the next step only when the user marks one done or skipped (progress in `localStorage` under `mystudy.steps.v1`). Never reintroduce date-keyed headings — a passed date must not move a task anywhere. Optional lines inside a step: `⏰ **期限**: 8/28` (surfaces a deadline banner), `📝 **問い**:`, `📚 参照:` (note titles in 「」, deck ids in backticks).
 - `content/manifest.json` lists Markdown notes in `content/notes/*.md`.
 - `data/manifest.json` lists flashcard decks in `data/decks/*.json`.
 - `manifest.webmanifest`, `sw.js`, and `icons/` provide PWA/offline support.

@@ -109,6 +109,7 @@ body {
 .hero-date { font-size: 13px; font-weight: 600; color: var(--text-dim); letter-spacing: .02em; }
 .hero-countdown { font-size: 27px; font-weight: 850; line-height: 1.15; margin-top: 4px; letter-spacing: -.01em;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-alert { margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--hard); background: color-mix(in srgb, var(--hard) 12%, transparent); border: 1px solid color-mix(in srgb, var(--hard) 32%, transparent); border-radius: 12px; padding: 9px 13px; }
 .today-card { border-color: color-mix(in srgb, var(--primary) 28%, var(--border)); }
 .compact-log textarea { min-height: 92px; margin-top: 10px; }
 .question-box { margin: 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--border)); border-radius: 13px; background: color-mix(in srgb, var(--primary) 7%, transparent); font-weight: 700; }
@@ -120,7 +121,11 @@ body {
 .plan-timeline:empty { display: none; }
 .plan-day { flex: 0 0 138px; min-height: 96px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); padding: 11px; scroll-snap-align: start; }
 .plan-day.today { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 9%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 24%, transparent); }
-.plan-day.past { opacity: .62; }
+.plan-day.done { opacity: .58; border-color: color-mix(in srgb, var(--good) 45%, var(--border)); }
+.plan-day.done .plan-day-date { color: var(--good); }
+.plan-day.done .plan-day-title { text-decoration: line-through; }
+.plan-day.skip { opacity: .45; }
+.plan-day.skip .plan-day-date { color: var(--text-dim); }
 .plan-day-date { font-size: 12px; font-weight: 850; color: var(--primary); }
 .plan-day-time { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
 .plan-day-title { font-size: 13px; font-weight: 750; line-height: 1.35; margin-top: 7px; }
@@ -143,14 +148,16 @@ body {
 .gken-detail { margin-top: 14px; }
 .gken-detail summary { font-size: 13px; font-weight: 600; color: var(--primary); cursor: pointer; padding: 4px 0; }
 .gken-detail .md { font-size: 14px; margin-top: 8px; }
-.backlog summary { color: var(--hard); }
-.backlog-note { font-size: 12px; margin: 6px 0 0; }
-.bl-item { border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); padding: 12px; margin-top: 10px; }
-.bl-head { border: none; background: transparent; color: var(--text); font: inherit; font-weight: 700; font-size: 14px; text-align: left; width: 100%; cursor: pointer; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.bl-toggle { flex-shrink: 0; font-size: 12px; font-weight: 650; color: var(--primary); }
-.bl-detail { font-size: 13px; margin-top: 8px; }
-.bl-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.bl-skip { border-color: var(--border); background: var(--surface); color: var(--text-dim); }
+.ci-skip { border-color: var(--border); background: var(--surface); color: var(--text-dim); }
+
+/* ステップ進捗 */
+.step-progress { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.sp-bar { height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.sp-bar > div { height: 100%; width: 0; border-radius: 999px; background: var(--grad); transition: width .35s ease; }
+.sp-text { font-size: 12px; font-weight: 650; color: var(--text-dim); margin-top: 7px; }
+.sp-today { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.sp-today-label { font-size: 12px; font-weight: 700; color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); padding: 5px 11px; border-radius: 999px; }
+.sp-note { font-size: 11px; margin: 9px 0 0; line-height: 1.5; }
 
 .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 11px; margin-bottom: 16px; }
 .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 6px; text-align: center; box-shadow: var(--shadow); }
@@ -205,6 +212,8 @@ textarea:focus, input[type=number]:focus { outline: none; border-color: var(--pr
 .md h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; margin: 22px 0 12px; }
 .md h2 { font-size: 18px; font-weight: 750; margin: 26px 0 10px; padding-top: 18px; border-top: 1px solid var(--border); }
 .md h2.is-today { color: var(--primary); }
+.md h2 .h2-step { display: inline-block; font-size: 12px; font-weight: 850; color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); border-radius: 999px; padding: 2px 9px; margin-right: 8px; vertical-align: 2px; }
+.md h2 .h2-time { font-size: 12px; font-weight: 650; color: var(--text-dim); margin-right: 8px; }
 .md h3 { font-size: 16px; font-weight: 700; margin: 18px 0 7px; }
 .md p { margin: 9px 0; }
 .md ul, .md ol { padding-left: 22px; margin: 9px 0; }

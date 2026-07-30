@@ -10,6 +10,7 @@ const EXAM_DATE = new Date(2026, 8, 5);   // 2026-09-05 G検定本番（第5回�
 const LOG_KEY = 'mystudy.log.v1';
 const SRS_KEY = 'mystudy.progress.v1';
 const TODAY_KEY = 'mystudy.today.v1';
+const STEP_KEY = 'mystudy.steps.v1';   // 計画ステップの進捗（日付ではなく「完了」で進む）
 const NEW_PER_SESSION = 20;
 const DAY = 86400000;
 
@@ -77,10 +78,12 @@ function renderHome() {
   else if (days === 0) cd.textContent = '🎯 今日が本番！';
   else cd.textContent = 'G検定 おつかれさまでした';
 
-  // 今日のタスク（G検定＋英語を一括チェックリスト化）＋未完了の積み残し
+  // 期限つきステップ（申込など）の警告
+  renderDeadlineAlert(now);
+
+  // 今日のタスク（現在のステップ＋英語を一括チェックリスト化）
   buildTodayChecklist(now);
-  buildBacklog(now);
-  const p = todayPlan(now);
+  const p = currentPlan();
   $('home-question').textContent = p.question || '今日の問いは計画に見つかりませんでした。計画タブを確認してください。';
   loadHomeLog(now);
 
@@ -96,9 +99,10 @@ function plainText(md) {
   return md.replace(/[*_`#>]/g, '').replace(/<br\s*\/?>/g, ' ').trim();
 }
 
-function todayPlan(now) {
-  const section = todaysTask(now);
-  const hasPlan = section && !section.startsWith('_');
+function currentPlan() {
+  const step = currentStep();
+  const section = step ? step.section : '';
+  const hasPlan = Boolean(step);
   const first = hasPlan ? section.split('\n')[0] : '';
   const parsed = parseGkenTitle(first);
   const purposeLine = (section.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || section.match(/🎯\s*(.+)/) || [])[1] || '';
@@ -125,110 +129,112 @@ async function copyQuizPrompt(plan, btn) {
   setTimeout(() => { btn.textContent = orig; }, 1600);
 }
 
-function renderPlanTimeline(now) {
-  const days = parsePlanDays();
-  const today = mdKey(now);
-  $('plan-timeline').innerHTML = days.length ? days.map(d => {
-    const cls = d.key === today ? 'today' : (dateOrderKey(d.key) < dateOrderKey(today) ? 'past' : '');
-    return `<div class="plan-day ${cls}">
-      <div class="plan-day-date">${escapeHtml(d.date)}</div>
-      <div class="plan-day-time">${escapeHtml(d.time || '')}</div>
-      <div class="plan-day-title">${escapeHtml(d.title)}</div>
-    </div>`;
-  }).join('') : '<p class="dim">計画を読み込めませんでした。</p>';
-  const el = $('plan-timeline').querySelector('.plan-day.today');
-  if (el) el.scrollIntoView({ inline: 'center', block: 'nearest' });
-}
-
-function parsePlanDays() {
-  if (!planText) return [];
-  return planText.split('\n').map(line => {
-    const m = line.match(/^##\s+(\d{1,2}\/\d{1,2})(?:\([^)]*\))?\|?([^|]*)\|?(.*)$/);
-    if (!m) return null;
-    const time = (m[2] || '').trim();
-    const title = (m[3] || time || m[1]).trim();
-    return { key: m[1], date: line.replace(/^##\s*/, '').split('|')[0].trim(), time, title };
-  }).filter(Boolean);
-}
-
-function dateOrderKey(key) {
-  const [m, d] = key.split('/').map(Number);
-  return m * 100 + d;
-}
-
 /* ================================================================== *
- * 未完了タスク（バックログ）
- * 計画の1日分＝1タスク。過去日で「完了もスキップもしていない」ものを表示。
- * 自動で今日には積まない（取り返さない原則）。完了/スキップは自分で選ぶ。
+ * 計画ステップ（順送りキュー）
+ *  計画は日付ではなく "## S01|40分|タイトル" のステップ列。
+ *  「完了」を押した時だけ次へ進む。日付が過ぎても勝手に流れない＝積み残しが出ない。
  * ================================================================== */
-function dateKeyFromMd(key, now) {
-  const [m, d] = key.split('/').map(Number);
-  return dateKey(new Date(now.getFullYear(), m - 1, d));
+function parsePlanSteps() {
+  if (!planText) return [];
+  const lines = planText.split('\n');
+  const steps = [];
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^```/.test(lines[i])) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    const m = lines[i].match(/^##\s+(S\d+)\s*\|([^|]*)\|(.*)$/);
+    if (!m) continue;
+    const body = [lines[i]];
+    for (let j = i + 1; j < lines.length; j++) {
+      if (/^(#{1,6}\s|---\s*$)/.test(lines[j])) break;
+      body.push(lines[j]);
+    }
+    const section = body.join('\n').trim();
+    steps.push({
+      id: m[1],
+      time: m[2].trim(),
+      title: m[3].trim(),
+      optional: m[3].includes('🔵'),
+      due: (section.match(/⏰\s*\*\*期限\*\*:\s*(\d{1,2}\/\d{1,2})/) || [])[1] || '',
+      section,
+    });
+  }
+  return steps;
 }
 
-function buildBacklog(now) {
-  const todayOrd = dateOrderKey(mdKey(now));
-  const store = jload(TODAY_KEY);
-  const pending = parsePlanDays().filter(d => {
-    if (dateOrderKey(d.key) >= todayOrd) return false;
-    const st = store[dateKeyFromMd(d.key, now)] || {};
-    return !st.gken && !st.skip;
-  }).map(d => {
-    // その日のセクションと参照教材（ノート/デッキ）を取り出す
-    const [m, dd] = d.key.split('/').map(Number);
-    const section = todaysTask(new Date(now.getFullYear(), m - 1, dd));
-    return { ...d, section, refs: refsFromSection(section) };
-  });
+/* 進捗ストア: { done: {S01:'2026-07-31'}, skip: {S03:'2026-08-02'} } */
+function loadSteps() { const s = jload(STEP_KEY); return { done: s.done || {}, skip: s.skip || {} }; }
+function saveSteps(s) { jsave(STEP_KEY, s); }
+function stepSettled(st, id) { return Boolean(st.done[id] || st.skip[id]); }
 
-  const box = $('backlog');
-  box.hidden = pending.length === 0;
-  if (!pending.length) return;
-  // 未完了がある時は最初から開いておく（一度閉じたらその操作を尊重）
-  if (!box.dataset.opened) { box.open = true; box.dataset.opened = '1'; }
-  $('backlog-count').textContent = `${pending.length}件`;
+/* 現在のステップ = 完了もスキップもしていない最初のステップ */
+function currentStep() {
+  const st = loadSteps();
+  return parsePlanSteps().find(s => !stepSettled(st, s.id)) || null;
+}
 
-  $('backlog-list').innerHTML = pending.map(d => {
-    const refBtns = [
-      ...d.refs.noteIds.map(id => `<button class="ci-btn" data-act="note" data-aid="${id}">📖 ${escapeHtml(noteTitle(id))}</button>`),
-      ...d.refs.deckIds.map(id => `<button class="ci-btn" data-act="deck" data-aid="${id}">🃏 ${escapeHtml(deckName(id))}</button>`),
-    ].join('');
-    return `
-    <div class="bl-item" data-key="${d.key}">
-      <button class="bl-head">${escapeHtml(d.date)}　${escapeHtml(d.title)}<span class="bl-toggle">手順 ▾</span></button>
-      <div class="bl-detail md" hidden></div>
-      <div class="bl-actions">${refBtns}</div>
-      <div class="bl-actions">
-        <button class="ci-btn" data-bl="done">✓ 完了にする</button>
-        <button class="ci-btn bl-skip" data-bl="skip">スキップ</button>
-      </div>
-    </div>`;
-  }).join('');
+/* ステップを消化する。type: 'done' | 'skip' */
+function settleStep(id, type) {
+  const st = loadSteps();
+  st[type][id] = dateKey(new Date());
+  saveSteps(st);
+}
+/* 直近に消化したステップを1つ取り消す（今日ぶんのみ） */
+function undoLastStep(now) {
+  const st = loadSteps();
+  const today = dateKey(now);
+  const ids = parsePlanSteps().map(s => s.id).reverse();
+  for (const id of ids) {
+    if (st.done[id] === today) { delete st.done[id]; saveSteps(st); return id; }
+    if (st.skip[id] === today) { delete st.skip[id]; saveSteps(st); return id; }
+  }
+  return null;
+}
+/* 今日消化したステップ */
+function stepsSettledToday(now) {
+  const st = loadSteps();
+  const today = dateKey(now);
+  return parsePlanSteps()
+    .filter(s => st.done[s.id] === today || st.skip[s.id] === today)
+    .map(s => ({ ...s, skipped: st.skip[s.id] === today }));
+}
 
-  $('backlog-list').querySelectorAll('.bl-item').forEach((item, i) => {
-    const d = pending[i];
-    // タイトルタップで手順を展開
-    item.querySelector('.bl-head').addEventListener('click', () => {
-      const det = item.querySelector('.bl-detail');
-      if (det.hidden && !det.innerHTML) det.innerHTML = renderMarkdown(d.section);
-      det.hidden = !det.hidden;
-    });
-    // 教材を開く（そのまま学習できるように）
-    item.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', () => {
-      const { act, aid } = btn.dataset;
-      if (act === 'note') openNoteById(aid);
-      else if (act === 'deck') { const dk = decks.find(x => x.id === aid); if (dk) { currentTab = 'content'; startStudy(dk); } }
-    }));
-    // 完了 / スキップ
-    item.querySelectorAll('[data-bl]').forEach(btn => btn.addEventListener('click', () => {
-      const all = jload(TODAY_KEY);
-      const dk = dateKeyFromMd(d.key, now);
-      const day = all[dk] || {};
-      if (btn.dataset.bl === 'done') day.gken = true; else day.skip = true;
-      all[dk] = day;
-      jsave(TODAY_KEY, all);
-      buildBacklog(now);
-    }));
-  });
+/* 残り日数 / 残りステップからペースを出す */
+function stepStats(now) {
+  const steps = parsePlanSteps();
+  const st = loadSteps();
+  const settled = steps.filter(s => stepSettled(st, s.id)).length;
+  const left = steps.length - settled;
+  const days = Math.max(0, Math.ceil((startOfDay(EXAM_DATE.getTime()) - startOfDay(now.getTime())) / DAY));
+  return { total: steps.length, settled, left, days, perDay: days > 0 ? left / days : left };
+}
+
+/* 期限つきの未消化ステップを警告表示（申込など）。
+   出すのは「もう順番が来ているもの」か「14日以内に迫っているもの」だけ。 */
+const DEADLINE_WARN_DAYS = 14;
+
+function renderDeadlineAlert(now) {
+  const el = $('hero-alert');
+  if (!el) return;
+  const steps = parsePlanSteps();
+  const st = loadSteps();
+  const curIdx = steps.findIndex(s => !stepSettled(st, s.id));
+  const urgent = steps
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => s.due && !stepSettled(st, s.id))
+    .map(({ s, i }) => {
+      const [m, d] = s.due.split('/').map(Number);
+      const left = Math.ceil((startOfDay(new Date(now.getFullYear(), m - 1, d).getTime()) - startOfDay(now.getTime())) / DAY);
+      return { s, i, left };
+    })
+    .filter(({ i, left }) => left <= DEADLINE_WARN_DAYS || (curIdx >= 0 && i <= curIdx))
+    .sort((a, b) => a.left - b.left)[0];
+
+  el.hidden = !urgent;
+  if (!urgent) return;
+  el.textContent = urgent.left < 0
+    ? `⚠️ ${urgent.s.id}「${plainText(urgent.s.title)}」の期限 ${urgent.s.due} を過ぎています`
+    : `⏰ ${urgent.s.id}「${plainText(urgent.s.title)}」の期限 ${urgent.s.due} まで あと ${urgent.left} 日`;
 }
 
 /* 今日のタスク = G検定（計画から）＋ 英語（毎日ルーティン）を一括表示。
@@ -236,19 +242,23 @@ function buildBacklog(now) {
 function buildTodayChecklist(now) {
   const items = [];
 
-  // G検定
-  const gkenSection = todaysTask(now);
-  const hasGken = !gkenSection.startsWith('_');   // 見つからない時は斜体プレースホルダ
-  if (hasGken) {
-    const { time, title } = parseGkenTitle(gkenSection.split('\n')[0]);
-    const purpose = plainText((gkenSection.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || gkenSection.match(/🎯\s*(.+)/) || [])[1] || '');
-    const { noteIds, deckIds } = refsFromSection(gkenSection);
+  // 計画タスク = 現在のステップ（完了を押すまで、何日経ってもここに居座る）
+  const step = currentStep();
+  if (step) {
+    const purpose = plainText((step.section.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || step.section.match(/🎯\s*(.+)/) || [])[1] || '');
+    const { noteIds, deckIds } = refsFromSection(step.section);
     const actions = [];
     noteIds.forEach(id => actions.push({ type: 'note', id, label: '📖 ' + noteTitle(id) }));
     deckIds.forEach(id => actions.push({ type: 'deck', id, label: '🃏 ' + deckName(id) }));
     if (actions.length === 0) actions.push({ type: 'tab', id: 'content', label: '📚 コンテンツを開く' });
     actions.push({ type: 'quiz', id: '', label: '✨ Claudeクイズ文をコピー' });
-    items.push({ id: 'gken', main: '計画タスク' + (time ? `（${time}）` : ''), sub: title + (purpose ? ` — ${purpose}` : ''), actions });
+    actions.push({ type: 'skip', id: step.id, label: '⏭ このステップをスキップ' });
+    items.push({
+      id: 'step', step: true,
+      main: `${step.id}　計画タスク` + (step.time ? `（${step.time}）` : ''),
+      sub: plainText(step.title) + (purpose ? ` — ${purpose}` : ''),
+      actions,
+    });
   }
 
   // 英語（毎日ルーティン）
@@ -264,21 +274,26 @@ function buildTodayChecklist(now) {
   }
 
   const state = (jload(TODAY_KEY))[dateKey(now)] || {};
+  // ステップ項目は「押した瞬間に消化して次へ進む」ので、常に未チェックで描く
+  const isChecked = (it) => it.step ? false : Boolean(state[it.id]);
+
   const box = $('today-checklist');
   box.innerHTML = items.length ? items.map(it => `
-    <div class="check-item ${state[it.id] ? 'done' : ''}" data-id="${it.id}">
+    <div class="check-item ${isChecked(it) ? 'done' : ''}" data-id="${it.id}">
       <label class="ci-check">
-        <input type="checkbox" ${state[it.id] ? 'checked' : ''} />
+        <input type="checkbox" ${isChecked(it) ? 'checked' : ''} />
         <span class="ci-body"><span class="ci-main">${escapeHtml(it.main)}</span><span class="ci-sub">${escapeHtml(it.sub)}</span></span>
       </label>
       ${it.actions.length ? `<div class="ci-actions">${it.actions.map(a =>
-        `<button class="ci-btn" data-act="${a.type}" data-aid="${a.id}">${escapeHtml(a.label)}</button>`).join('')}</div>` : ''}
-    </div>`).join('') : '<p class="dim">今日のタスクはありません。</p>';
+        `<button class="ci-btn ${a.type === 'skip' ? 'ci-skip' : ''}" data-act="${a.type}" data-aid="${a.id}">${escapeHtml(a.label)}</button>`).join('')}</div>` : ''}
+    </div>`).join('')
+    : '<p class="dim">🎉 計画のステップはすべて消化しました。おつかれさま。</p>';
 
   // チェックボックス（消し込み）
   box.querySelectorAll('.ci-check input').forEach(inp => {
     inp.addEventListener('change', () => {
       const id = inp.closest('.check-item').dataset.id;
+      if (id === 'step') { if (step) settleStep(step.id, 'done'); renderHome(); return; }
       const all = jload(TODAY_KEY); const day = all[dateKey(now)] || {};
       day[id] = inp.checked; all[dateKey(now)] = day; jsave(TODAY_KEY, all);
       inp.closest('.check-item').classList.toggle('done', inp.checked);
@@ -286,23 +301,48 @@ function buildTodayChecklist(now) {
     });
   });
 
-  // コンテンツへのジャンプボタン
+  // コンテンツへのジャンプボタン / スキップ
   box.querySelectorAll('.ci-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const { act, aid } = btn.dataset;
       if (act === 'note') openNoteById(aid);
       else if (act === 'deck') { const d = decks.find(x => x.id === aid); if (d) { currentTab = 'content'; startStudy(d); } }
       else if (act === 'tab') { currentTab = aid; openTab(aid); }
-      else if (act === 'quiz') copyQuizPrompt(todayPlan(now), btn);
+      else if (act === 'quiz') copyQuizPrompt(currentPlan(), btn);
+      else if (act === 'skip') { settleStep(aid, 'skip'); renderHome(); }
     });
   });
 
-  // G検定の手順詳細
+  // 現在ステップの手順詳細
   const det = $('gken-detail');
-  if (hasGken) { det.hidden = false; $('today-gken-detail').innerHTML = renderMarkdown(gkenSection); }
+  if (step) { det.hidden = false; $('today-gken-detail').innerHTML = renderMarkdown(step.section); }
   else det.hidden = true;
 
+  renderStepProgress(now);
   updateDoneBadge(items, now);
+}
+
+/* 進捗バー ＋ 今日消化したステップ（取り消し可） */
+function renderStepProgress(now) {
+  const s = stepStats(now);
+  const bar = $('step-progress');
+  if (!bar) return;
+  if (!s.total) { bar.hidden = true; return; }
+  bar.hidden = false;
+  const pct = Math.round((s.settled / s.total) * 100);
+  const pace = s.left === 0 ? '完走' : (s.days === 0 ? '本番当日' : `1日 ${s.perDay.toFixed(1)} ステップで間に合う`);
+  $('sp-fill').style.width = pct + '%';
+  $('sp-text').textContent = `ステップ ${s.settled}/${s.total}（残り${s.left}）・本番まで${s.days}日・${pace}`;
+
+  const today = stepsSettledToday(now);
+  const chip = $('sp-today');
+  chip.hidden = today.length === 0;
+  if (today.length) {
+    chip.innerHTML = `<span class="sp-today-label">今日 ✓${today.length}件: ${
+      escapeHtml(today.map(t => t.id + (t.skipped ? '(スキップ)' : '')).join(' / '))
+    }</span><button class="ci-btn" id="sp-undo">↩︎ 直前を取り消す</button>`;
+    $('sp-undo').addEventListener('click', () => { undoLastStep(now); renderHome(); });
+  }
 }
 
 /* 計画の「📚 参照:」行から、ノートid・デッキidを取り出す */
@@ -326,9 +366,13 @@ function openNoteById(id) {
   if (n) { currentTab = 'content'; openNote(n); }
 }
 
+/* 「今日ぶん完了」= 日課（英語など）が全部チェック済み ＋ ステップを1つ以上消化 */
 function updateDoneBadge(items, now) {
   const state = (jload(TODAY_KEY))[dateKey(now)] || {};
-  $('today-done-badge').hidden = !(items.length > 0 && items.every(it => state[it.id]));
+  const routines = items.filter(it => !it.step);
+  const routinesDone = routines.every(it => state[it.id]);
+  const stepDone = stepsSettledToday(now).length > 0 || !currentStep();
+  $('today-done-badge').hidden = !(routinesDone && stepDone);
 }
 
 function parseGkenTitle(headingLine) {
@@ -337,32 +381,6 @@ function parseGkenTitle(headingLine) {
   if (parts.length >= 3) return { time: parts[1].trim(), title: parts.slice(2).join('|').trim() };
   const m = s.match(/^\d{1,2}\/\d{1,2}\([^)]*\)\s*(.*)$/);
   return { time: '', title: (m ? m[1] : s).trim() };
-}
-
-function todaysTask(d) {
-  if (!planText) return '_計画を読み込み中…_';
-  const key = mdKey(d);
-  const lines = planText.split('\n');
-  // 1) "## 6/24..." 見出しセクション（コードフェンス内は無視）
-  let inFence = false;
-  for (let i = 0; i < lines.length; i++) {
-    if (/^```/.test(lines[i])) { inFence = !inFence; continue; }
-    if (inFence) continue;
-    const m = lines[i].match(/^##\s+(\d{1,2})\/(\d{1,2})/);
-    if (m && `${+m[1]}/${+m[2]}` === key) {
-      const out = [lines[i]];
-      for (let j = i+1; j < lines.length; j++) {
-        if (/^(#|##|---)/.test(lines[j])) break;
-        out.push(lines[j]);
-      }
-      return out.join('\n').trim();
-    }
-  }
-  // 2) 本番週の箇条書き "- **6/29(月)** ..."
-  const esc = key.replace('/', '\\/');
-  const re = new RegExp(`\\*\\*${esc}\\(`);
-  for (const ln of lines) if (re.test(ln)) return ln.replace(/^-\s*/, '');
-  return '_今日のタスクは計画に見つかりませんでした。「計画」タブを確認してください。_';
 }
 
 /* 連続記録日数（今日 or 昨日から遡る） */
@@ -381,19 +399,46 @@ function renderPlan() {
   showScreen('plan');
   renderPlanTimeline(new Date());
   $('plan-content').innerHTML = planText
-    ? highlightToday(renderMarkdown(planText))
+    ? prettifyStepHeadings(highlightCurrentStep(renderMarkdown(planText)))
     : '<p class="dim">計画を読み込めませんでした。</p>';
-  // 今日のセクションへスクロール
+  // 現在のステップへスクロール
   const el = $('plan-content').querySelector('.today-marker');
   if (el) el.scrollIntoView({ block: 'start' });
 }
-// 今日の見出しに目印クラスを付ける
-function highlightToday(html) {
-  const key = mdKey(new Date()).replace('/', '\\/');
+
+/* ステップの一覧（計画タブ上部の帯）。完了/スキップ/現在地が一目でわかる */
+function renderPlanTimeline(now) {
+  const steps = parsePlanSteps();
+  const st = loadSteps();
+  const cur = steps.find(s => !stepSettled(st, s.id));
+  $('plan-timeline').innerHTML = steps.length ? steps.map(s => {
+    const cls = st.done[s.id] ? 'done' : st.skip[s.id] ? 'skip' : (cur && cur.id === s.id) ? 'today' : '';
+    const mark = st.done[s.id] ? '✓' : st.skip[s.id] ? '⏭' : (cur && cur.id === s.id) ? '▶' : '';
+    return `<div class="plan-day ${cls}">
+      <div class="plan-day-date">${mark} ${escapeHtml(s.id)}</div>
+      <div class="plan-day-time">${escapeHtml(s.time || '')}</div>
+      <div class="plan-day-title">${escapeHtml(plainText(s.title))}</div>
+    </div>`;
+  }).join('') : '<p class="dim">計画を読み込めませんでした。</p>';
+  const el = $('plan-timeline').querySelector('.plan-day.today');
+  if (el) el.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+
+// "S04|40分|タイトル" の見出しを読みやすい形に整える
+function prettifyStepHeadings(html) {
   return html.replace(
-    new RegExp(`(<h2[^>]*>\\s*${key}\\b)`),
-    '<span class="today-marker"></span>$1'
-  ).replace(/<h2([^>]*)>(\s*\d{1,2}\/\d{1,2}\b[^<]*今日?)/, '<h2$1 class="is-today">$2');
+    /<h2([^>]*)>(S\d+)\|([^|<]*)\|([^<]*)<\/h2>/g,
+    '<h2$1><span class="h2-step">$2</span><span class="h2-time">$3</span>$4</h2>'
+  );
+}
+
+// 現在のステップの見出しに目印クラスを付ける
+function highlightCurrentStep(html) {
+  const cur = currentStep();
+  if (!cur) return html;
+  return html
+    .replace(new RegExp(`(<h2[^>]*>\\s*${cur.id}\\b)`), '<span class="today-marker"></span>$1')
+    .replace(new RegExp(`<h2([^>]*)>(\\s*${cur.id}\\b)`), '<h2$1 class="is-today">$2');
 }
 
 /* ================================================================== *
