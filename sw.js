@@ -1,5 +1,5 @@
 /* My Study — Service Worker (オフライン対応) */
-const CACHE = 'mystudy-v24';
+const CACHE = 'mystudy-v26';
 const ASSETS = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ const ASSETS = [
   './content/notes/deep-learning.md',
   './content/notes/law-ethics.md',
   './content/notes/math-stats.md',
+  './content/notes/hardware-os.md',
   './content/notes/english.md',
   './content/notes/english-reading.md',
   './data/manifest.json',

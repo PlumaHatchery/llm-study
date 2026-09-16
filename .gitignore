@@ -2,3 +2,8 @@
 node_modules/
 *.log
 .playwright-mcp/
+
+# 解説動画キット（tools/video-kit）
+tools/video-kit/.venv/
+tools/video-kit/out/
+__pycache__/
