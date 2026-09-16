@@ -6,8 +6,9 @@ from matplotlib.patches import FancyBboxPatch
 from matplotlib.font_manager import FontProperties
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 
-FP = FontProperties(fname="/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")
-FPB = FontProperties(fname="/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc")
+# フォントは common.py が環境を見て選ぶ（元はLinuxのNotoを直指定していた）
+import common as _C
+FP, FPB = _C.FP, _C.FPB
 
 BG, INK, MUTED = "#FAF9F5", "#2C2C2A", "#5F5E5A"
 WIRE, ATOM = "#DEDBD1", "#B4B2A9"
@@ -197,6 +198,6 @@ if __name__ == "__main__":
     ani = FuncAnimation(fig, draw, frames=NF, interval=1000 / FPS, blit=False)
     w = FFMpegWriter(fps=FPS, bitrate=2600,
                      extra_args=["-pix_fmt", "yuv420p", "-vcodec", "libx264"])
-    ani.save("/home/claude/ep01.mp4", writer=w, dpi=100,
+    ani.save("out/ep01_denki.mp4", writer=w, dpi=100,
              savefig_kwargs={"facecolor": BG})
     print("ep01 done", DUR)
