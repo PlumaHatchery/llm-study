@@ -35,9 +35,13 @@ flowchart LR
 電圧を上げると速くなる → 原子に衝突して発熱。最後の山:電子1個は秒速0.1mm
 しか進まないのに、押し合いは光速で伝わる。
 
+<video src="content/video/ep01_denki.mp4" poster="content/video/poster/ep01_denki.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **2. 回路の読み方** ── 済(`ep02_kairo.py`)
 6V/3Ω → 2A。抵抗を倍にすると半分。直列は電流共通・電圧分割、並列は
 電圧共通・電流分割。流れる点の数と速さを電流値に比例させている。
+
+<video src="content/video/ep02_kairo.mp4" poster="content/video/poster/ep02_kairo.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **3. コンデンサとコイル**
 2枚の板に電荷が溜まっていくのを点の数で見せ、同時に充電カーブを右に描き足す。
@@ -45,10 +49,14 @@ flowchart LR
 流れを保とうとして立ち上がりが遅れる様子。**時定数が主役**。第12回と第15回で
 二度使うので、ここで曲線の形を目に焼き付けさせる。
 
+<video src="content/video/ep03_condenser.mp4" poster="content/video/poster/ep03_condenser.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **4. 交流と波形**
 左に回る矢印、右に波形。矢印の縦成分を右へ描き出していくと正弦波になる、
 という対応をそのまま動かす。回転が速い=周波数、スタート角度の差=位相。
 「波は回転の影」が伝われば成功。
+
+<video src="content/video/ep04_koryu.mp4" poster="content/video/poster/ep04_koryu.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 第2部 半導体
 
@@ -57,34 +65,47 @@ flowchart LR
 導体(手が余る)・絶縁体(固く結ばれて動かない)・半導体(ぎりぎり)の
 3枚を横に並べ、同じ電圧をかけて流れる量を比較する。
 
+<video src="content/video/ep05_silicon.mp4" poster="content/video/poster/ep05_silicon.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **6. 不純物を混ぜる**
 完成した格子に、リン(手5本)を1個差し込むと電子が1個余る。ホウ素(手3本)
 なら穴が空く。**穴に隣の電子が落ちて、穴が左へ歩いていく**のを繰り返し見せる。
 穴がプラスの粒として扱える理由がここで腑に落ちる。
+
+<video src="content/video/ep06_fujunbutsu.mp4" poster="content/video/poster/ep06_fujunbutsu.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **7. pn接合とダイオード**
 n側とp側を近づけて接触。境界で電子が穴に落ちて埋まり、空乏層(誰もいない帯)
 ができる。順方向電圧で帯が薄くなって流れ、逆方向で厚くなって止まる。最後に
 正弦波を入力して、片側だけが残る(整流)ところまで。
 
+<video src="content/video/ep07_pn.mp4" poster="content/video/poster/ep07_pn.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **8. バイポーラトランジスタ**
 ベースに細い流れを少し通すと、コレクタ→エミッタに太い流れが出る。細い流れを
 2倍にすると太い流れも2倍。**小さな入力が大きな出力を支配する**という一点。
 第1部の「スイッチ」とは違い、比例している点を強調する。
+
+<video src="content/video/ep08_bipolar.mp4" poster="content/video/poster/ep08_bipolar.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **9. 増幅回路**
 小さな波を入れて大きな波が出てくる。次に動作点を端に寄せると、波の頭が
 天井に当たって潰れる(歪み)。だから真ん中に置く。アナログが「連続」で
 あることの意味と、その脆さ。
 
-**10. MOSFET** ── 済(`ep10_mosfet_narrated.py`)
+<video src="content/video/ep09_zofuku.mp4" poster="content/video/poster/ep09_zofuku.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
+**10. MOSFET**
 n-p-n の三領域、ゲートに電圧、空き地の電子が表面に集まって橋になる。
-※ 参照実装は音声付き。字幕のみ版に直して使う。
+
+<video src="content/video/ep10_mosfet.mp4" poster="content/video/poster/ep10_mosfet.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **11. なぜデジタルはMOSFETなのか**
 同じ入力波を2本並べる。上は増幅器として使った出力(なだらか)、下はスイッチ
 として使った出力(しきい値で角が立つ)。さらに待機時の消費電流を数値で対比。
 増幅素子がスイッチに転職した経緯。
+
+<video src="content/video/ep11_why_digital.mp4" poster="content/video/poster/ep11_why_digital.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 第3部 時間をつくる
 
@@ -93,20 +114,28 @@ n-p-n の三領域、ゲートに電圧、空き地の電子が表面に集ま�
 勝手に育って持続する。**ブランコを押すタイミング**の絵を重ねる。合わないと
 減衰する/暴れる、という失敗例も見せる。
 
+<video src="content/video/ep12_hasshin.mp4" poster="content/video/poster/ep12_hasshin.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **13. 水晶振動子**
 水晶片に電圧をかけると変形し、変形させると電圧が出る(圧電)。両方向の矢印で。
 次に色々な周波数で揺すってみて、固有振動数だけが大きく振れる様子。
 32,768 = 2の15乗。15段のフリップフロップで割ると1秒になる、を数字で示す。
+
+<video src="content/video/ep13_suisho.mp4" poster="content/video/poster/ep13_suisho.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **14. クロックとパルス**
 矩形波を1本流し、立ち上がりの瞬間に離れた部品が**一斉に**動く絵。
 デューティ比。最後に、クロックを速くしすぎると遠い部品に届く前に次の波が
 来てしまう(だから周波数に上限がある)。
 
+<video src="content/video/ep14_clock.mp4" poster="content/video/poster/ep14_clock.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **15. 波形は汚れる**
 きれいな矩形を入れたのに、受け側ではなまって丸くなっている。しきい値の
 近くでふらつくと0か1か決まらない。シュミットトリガで**しきい値を上下2つ**
 持たせて、角を立て直す。第3回の時定数がここで効く。
+
+<video src="content/video/ep15_namari.mp4" poster="content/video/poster/ep15_namari.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 第4部 論理
 
@@ -115,38 +144,56 @@ n-p-n の三領域、ゲートに電圧、空き地の電子が表面に集ま�
 のせても帯の中に収まれば情報は無傷。第2回の分圧がここで効く。
 デジタルが汚れに強い本当の理由。
 
+<video src="content/video/ep16_zero_one.mp4" poster="content/video/poster/ep16_zero_one.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **17. 直列と並列** ── 済(`ep17_and_or.py`)
 一本道に橋2つ=かつ、道2本に橋=または。最後に真理値表。
+
+<video src="content/video/ep17_and_or.mp4" poster="content/video/poster/ep17_and_or.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **18. CMOSとNOT・NAND・NOR**
 pMOSを上・nMOSを下に積み、入力を振ると出力が必ず反転する。次に下段を
 直列に組み替えるとNAND、並列だとNOR。**なぜ素直なANDが作れないのか**
 (pMOSは1を伝える担当、nMOSは0を伝える担当で役が固定)を回収する。
 
+<video src="content/video/ep18_cmos.mp4" poster="content/video/poster/ep18_cmos.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **19. ブール代数とド・モルガン**
 NANDを1個だけ置く。配線を変えるだけでNOT→AND→ORが順に出来上がる。
 同じ部品が役を変えていくのを一続きのアニメーションで。
 
+<video src="content/video/ep19_boole.mp4" poster="content/video/poster/ep19_boole.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **20. 2進数と負の数**
 桁の重み(1,2,4,8)を皿に乗せる天秤。次に補数を**一周する時計**で見せ、
 -1 が 1111 になる理由と、引き算が足し算で済む理由。
+
+<video src="content/video/ep20_binary.mp4" poster="content/video/poster/ep20_binary.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **21. 加算器**
 1桁の足し算の真理値表を書く → 和がXOR、繰り上がりがANDと一致することに
 気付かせる → 半加算器 → 全加算器 → 4桁に連結。**繰り上がりが左へ伝播していく
 のをコマ送りで**。論理が計算になる回で、第4部の山場。
 
+<video src="content/video/ep21_adder.mp4" poster="content/video/poster/ep21_adder.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **22. フリップフロップ**
 NANDを2個、互いの出力を相手の入力に戻す。片方を一瞬叩くと状態が固定され、
 手を離しても保持される。**それまでの回路に無かった「過去」がここで生まれる。**
+
+<video src="content/video/ep22_flipflop.mp4" poster="content/video/poster/ep22_flipflop.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **23. レジスタ・カウンタ・シフト**
 フリップフロップを8個並べて8ビット保持。クロックごとに+1するカウンタ、
 1個ずつ横にずれるシフトレジスタ。同じ部品の並べ方だけで機能が変わる。
 
+<video src="content/video/ep23_register.mp4" poster="content/video/poster/ep23_register.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **24. ステートマシン**
 信号機で。状態を丸、遷移を矢印。それを「現在状態を持つレジスタ」+
 「次状態を決める論理回路」の2ブロックに還元する。制御回路の原型。
+
+<video src="content/video/ep24_state.mp4" poster="content/video/poster/ep24_state.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 第5部 コンピュータになる
 
@@ -154,25 +201,37 @@ NANDを2個、互いの出力を相手の入力に戻す。片方を一瞬叩く
 加算器と論理回路を束ね、セレクタで「どの結果を出すか」を選ぶ。バスは
 1本の共用道路で、時刻をずらして使い分けている様子。
 
+<video src="content/video/ep25_alu_bus.mp4" poster="content/video/poster/ep25_alu_bus.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **26. 命令という発明**
 メモリの同じ数値を、データとして読む場合と命令として読む場合を並べる。
 プログラムカウンタが指す先が次の行為になる。**プログラム内蔵方式**。
+
+<video src="content/video/ep26_meirei.mp4" poster="content/video/poster/ep26_meirei.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **27. フェッチ・デコード・実行**
 1命令の一巡をクロックに同期させてコマ送り。PC → メモリ → 命令レジスタ →
 デコード → ALU → 書き戻し → PC+1。ここで初めて「動いている」ように見える。
 
+<video src="content/video/ep27_fetch.mp4" poster="content/video/poster/ep27_fetch.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **28. メモリ階層**
 レジスタ/L1/L2/DRAM/SSDを距離と面積で並べ、アクセス時間を**歩く距離**に
 換算する(1クロックを1歩とすると、DRAMは何百歩)。ヒットとミス。
+
+<video src="content/video/ep28_memory.mp4" poster="content/video/poster/ep28_memory.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **29. 現代のCPUの中身**
 パイプラインをベルトコンベアで。5工程が同時に別の命令を処理している。
 分岐予測が外れた瞬間に、仕掛品を全部捨てる様子。
 
+<video src="content/video/ep29_pipeline.mp4" poster="content/video/poster/ep29_pipeline.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **30. 機械語から高級言語へ**
 1行のコードが、アセンブラ → 機械語のビット列 → ゲートの開閉に落ちていく
 縦の連鎖。上から下へ一本で貫く。
+
+<video src="content/video/ep30_language.mp4" poster="content/video/poster/ep30_language.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 第6部 OS
 
@@ -180,21 +239,31 @@ NANDを2個、互いの出力を相手の入力に戻す。片方を一瞬叩く
 CPUが仕事中に、外から札が上がる。今の状態を棚に預け、ハンドラへ飛び、
 終わって棚から戻す。**OSが成立する前提条件**であることを明示する。
 
+<video src="content/video/ep31_interrupt.mp4" poster="content/video/poster/ep31_interrupt.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **32. 特権モードとシステムコール**
 ユーザ空間とカーネルを2部屋に分け、間に1枚だけ扉を置く。勝手に壁を
 越えようとすると弾かれる。扉を通るときだけ特権が切り替わる。
+
+<video src="content/video/ep32_syscall.mp4" poster="content/video/poster/ep32_syscall.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **33. プロセスとスケジューラ**
 CPUが1個しかないのに3つのプログラムが同時に動いて見える。高速で
 持ち替えているだけ。持ち替えのたびにレジスタを棚に出し入れするコスト。
 
+<video src="content/video/ep33_process.mp4" poster="content/video/poster/ep33_process.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **34. 仮想メモリとMMU**
 各プロセスが「0番地から自分のもの」と思っている地図と、実際の物理メモリの
 地図を並べ、MMUが間で住所を書き換える。**OSの嘘の作り方**。
 
+<video src="content/video/ep34_virtual.mp4" poster="content/video/poster/ep34_virtual.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 **35. ファイルシステム**
 ただのブロックの並びの上に、木構造をでっち上げる。ディレクトリは
 「名前とブロック番号の対応表」でしかない。断片化。
+
+<video src="content/video/ep35_filesystem.mp4" poster="content/video/poster/ep35_filesystem.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 **36. デーモンとcron**
 ユーザ空間に戻る。shell、常駐プロセス、そしてcronは「寝て、起きて、表を見て、
@@ -202,6 +271,8 @@ CPUが1個しかないのに3つのプログラムが同時に動いて見える
 同じ。**出発点だったcronが、ここまでの35回すべての上に立っていると分かる回。**
 
 ---
+
+<video src="content/video/ep36_cron.mp4" poster="content/video/poster/ep36_cron.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
 
 ## 制作メモ
 

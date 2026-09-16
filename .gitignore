@@ -7,3 +7,6 @@ node_modules/
 tools/video-kit/.venv/
 tools/video-kit/out/
 __pycache__/
+
+# 動画キットの作業用（配信するのは content/video/ のほう）
+tools/video-kit/web/

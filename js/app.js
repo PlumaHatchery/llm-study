@@ -6,7 +6,7 @@
  *  - データはブラウザ内(localStorage)に保存。サーバー不要
  * ================================================================== */
 
-const EXAM_DATE = new Date(2026, 8, 5);   // 2026-09-05 G検定本番（第5回・オンライン）
+const EXAM_DATE = new Date(2026, 10, 7);  // 2026-11-07 G検定本番（第6回・オンライン）
 const LOG_KEY = 'mystudy.log.v1';
 const SRS_KEY = 'mystudy.progress.v1';
 const TODAY_KEY = 'mystudy.today.v1';
@@ -84,7 +84,7 @@ function renderHome() {
   // 今日のタスク（現在のステップ＋英語を一括チェックリスト化）
   buildTodayChecklist(now);
   const p = currentPlan();
-  $('home-question').textContent = p.question || '今日の問いは計画に見つかりませんでした。計画タブを確認してください。';
+  $('home-question').textContent = p.question || 'このステップには問いがありません。今日やったことを1〜2文で書いておく。';
   loadHomeLog(now);
 
   // 統計
@@ -92,7 +92,7 @@ function renderHome() {
   $('stat-streak').textContent = streak(log);
   $('stat-total').textContent = Object.keys(log).length;
   const todayEntry = log[dateKey(now)];
-  $('stat-done').textContent = todayEntry ? (todayEntry.status === '達成' ? '達成' : todayEntry.status) : '未';
+  $('stat-done').textContent = todayEntry ? todayEntry.status : '—';
 }
 
 function plainText(md) {
@@ -120,9 +120,22 @@ function currentPlan() {
   return { section, hasPlan, time: parsed.time, title: parsed.title, purpose: plainText(purposeLine), question: plainText(question), steps };
 }
 
+/* ステップ見出しから出題範囲を取り出す。
+   見出しは "分類: 範囲"（例 "G検定インプット 1/10: AIの歴史"）の形。
+   ":" より後ろが範囲。無ければ見出し全体を使う。 */
+function quizScope(title) {
+  const t = (title || '').replace(/[🔵⭐★]/g, '').trim();
+  const i = t.search(/[:：]/);
+  const scope = (i >= 0 ? t.slice(i + 1) : t).trim();
+  return scope || '今日の範囲';
+}
+
 async function copyQuizPrompt(plan, btn) {
-  const field = (plan.title || '今日の範囲').replace(/^インプット[①-⑥]?\s*/, '');
-  const text = `G検定の「${field}」から本番形式の4択確認問題を10問出して。1問ずつ出題し、回答後に正解・不正解の理由・紛らわしい選択肢の見分け方を説明して。`;
+  const isLlm = /🔵|LLM/.test(plan.title || '');
+  const scope = quizScope(plan.title);
+  const text = isLlm
+    ? `「${scope}」の理解度を確認する質問を5つして。1問ずつ聞き、私の答えに対して足りない観点を補足して。`
+    : `G検定の「${scope}」から本番形式の4択問題を10問出して。1問ずつ出題し、回答のたびに正解・不正解の理由と、紛らわしい選択肢の見分け方を説明して。`;
   const orig = btn.textContent;
   try { await navigator.clipboard.writeText(text); btn.textContent = '✓ コピーしました'; }
   catch { prompt('コピーしてください:', text); }
@@ -246,6 +259,8 @@ function buildTodayChecklist(now) {
   const step = currentStep();
   if (step) {
     const purpose = plainText((step.section.match(/🎯\s*\*\*目的\*\*:\s*(.+)/) || step.section.match(/🎯\s*(.+)/) || [])[1] || '');
+    // 目的が書かれていなければ、手順の最初のひとつを「まず何をするか」として出す
+    const firstAction = plainText((((step.section.match(/\*\*手順\*\*:\s*(.+)/) || [])[1] || '').split('→')[0] || '').trim());
     const { noteIds, deckIds } = refsFromSection(step.section);
     const actions = [];
     noteIds.forEach(id => actions.push({ type: 'note', id, label: '📖 ' + noteTitle(id) }));
@@ -255,8 +270,8 @@ function buildTodayChecklist(now) {
     actions.push({ type: 'skip', id: step.id, label: '⏭ このステップをスキップ' });
     items.push({
       id: 'step', step: true,
-      main: `${step.id}　計画タスク` + (step.time ? `（${step.time}）` : ''),
-      sub: plainText(step.title) + (purpose ? ` — ${purpose}` : ''),
+      main: `${step.id}　${plainText(step.title)}` + (step.time ? `（${step.time}）` : ''),
+      sub: purpose || (firstAction ? `まず: ${firstAction}` : ''),
       actions,
     });
   }
@@ -330,9 +345,11 @@ function renderStepProgress(now) {
   if (!s.total) { bar.hidden = true; return; }
   bar.hidden = false;
   const pct = Math.round((s.settled / s.total) * 100);
-  const pace = s.left === 0 ? '完走' : (s.days === 0 ? '本番当日' : `1日 ${s.perDay.toFixed(1)} ステップで間に合う`);
   $('sp-fill').style.width = pct + '%';
-  $('sp-text').textContent = `ステップ ${s.settled}/${s.total}（残り${s.left}）・本番まで${s.days}日・${pace}`;
+  $('sp-text').textContent =
+    s.left === 0 ? `ステップ ${s.settled}/${s.total} — すべて消化ずみ`
+    : s.days === 0 ? `ステップ ${s.settled}/${s.total} 消化・残り${s.left} — 今日が本番`
+    : `ステップ ${s.settled}/${s.total} 消化・残り${s.left} ／ 本番まで${s.days}日 → 1日 ${s.perDay.toFixed(1)} ステップのペース`;
 
   const today = stepsSettledToday(now);
   const chip = $('sp-today');
@@ -534,7 +551,7 @@ $('log-copy').addEventListener('click', async () => {
   const text = logToMd(new Date(), currentLogEntry());
   try { await navigator.clipboard.writeText(text); $('log-copy').textContent = '✓ コピーしました'; }
   catch { prompt('コピーしてください:', text); }
-  setTimeout(() => { $('log-copy').textContent = 'log.md形式でコピー'; }, 1500);
+  setTimeout(() => { $('log-copy').textContent = '記録をコピー（log.md形式）'; }, 1500);
 });
 
 function logToMd(d, e) {
