@@ -1,7 +1,10 @@
 # 解説動画キット ── Claude Code 引き継ぎ用
 
 トランジスタからOSまでの学習動画(全36回)を作るための土台。
-第1回・第2回・第10回・第17回は完成済みで、参照実装として入っている。
+**36回すべて実装済み。** 第1回・第2回・第10回・第17回は元からの参照実装、
+第3〜9回・第11〜16回・第18〜36回はこのキットの上で書き足したもの。
+
+第10回だけは音声付きの実装のままなので、字幕のみ版に直す作業が残っている。
 
 ## 構成
 
@@ -10,26 +13,32 @@ common.py                  共通モジュール(色・フォント・シーン�
 ep_template.py             ひな形。これをコピーして中身を差し替える
 check.py                   レンダ結果から指定秒のフレームをPNGに切り出す
 episode-specs.md           全36回の「画面で何を動かすか」の仕様
-ep01_denki.py              完成品:電気とは何か
-ep02_kairo.py              完成品:回路の読み方
-ep10_mosfet_narrated.py    完成品:MOSFET(音声付きの実装例)
-ep17_and_or.py             完成品:直列と並列
+epNN_*.py                  各回の本体。36本
 narrate_optional.py        音声合成(採用していない。下記参照)
 ```
 
 ## 環境
 
 ```bash
-# 必要なもの
-ffmpeg
-python3 -m pip install matplotlib numpy scipy
-fc-list :lang=ja        # 日本語フォントの確認
+ffmpeg                                    # macOS なら brew install ffmpeg
+python3 -m venv .venv                     # Homebrew の python は外部管理なので venv
+.venv/bin/pip install matplotlib numpy scipy
+fc-list :lang=ja                          # 日本語フォントの確認
 ```
 
-日本語フォントは `common.py` の `_NOTO` でパス直指定している。
-環境が違えば `fc-list :lang=ja` の結果に差し替える。
+レンダはこの venv で回す。
+
+```bash
+.venv/bin/python ep03_condenser.py
+.venv/bin/python check.py out/ep03_condenser.mp4 10 20 30
+```
+
+日本語フォントは `common.py` の `_CANDIDATES` を上から順に探して、
+最初に見つかった (通常, 太め) の対を使う。いまは Noto CJK（Linux）と
+ヒラギノ角ゴシック W3/W6（macOS）が入っている。どちらも無い環境なら
+`fc-list :lang=ja` の結果から対を足す。
 `.ttc` はフォント集合だが、`FontProperties(fname=...)` で index 0 が
-Noto Sans CJK JP になるのでそのまま使える。
+目的の書体になるのでそのまま使える。
 
 ## 作業手順
 
@@ -38,10 +47,17 @@ Noto Sans CJK JP になるのでそのまま使える。
 ```bash
 cp ep_template.py ep03_condenser.py
 # episode-specs.md の該当回を読んで実装
-python3 ep03_condenser.py
-python3 check.py out/ep03_condenser.mp4 3 11 20 28 36
+.venv/bin/python ep03_condenser.py
+.venv/bin/python check.py out/ep03_condenser.mp4 3 11 20 28 36
 # ← 切り出したPNGを必ず目で見る。ここを飛ばすと崩れたまま量産される
 ```
+
+実際、36本すべてで1回目のレンダは何かが重なっていた。典型的な崩れは4つ。
+
+- 配線が部品の中を貫く（経路を部品の外へ回すか、部品の位置をずらす）
+- ラベルが隣の要素に乗る（帯を守る。それでも足りなければ `bbox` で下地を敷く）
+- 点や矢印が背景の線に埋もれる（背景色の丸を1枚下に置いてから乗せる）
+- 目盛りや注釈が、まだ描かれていない場所を指している（実際の値から位置を出す）
 
 ## 守ること
 
