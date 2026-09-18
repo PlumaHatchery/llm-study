@@ -81,6 +81,9 @@ function renderHome() {
   // 期限つきステップ（申込など）の警告
   renderDeadlineAlert(now);
 
+  // 章の帯（ここがG検定だけの場所ではないことを画面に出す）
+  renderChapterBar();
+
   // 今日のタスク（現在のステップ＋英語を一括チェックリスト化）
   buildTodayChecklist(now);
   const p = currentPlan();
@@ -210,6 +213,37 @@ function stepsSettledToday(now) {
   return parsePlanSteps()
     .filter(s => st.done[s.id] === today || st.skip[s.id] === today)
     .map(s => ({ ...s, skipped: st.skip[s.id] === today }));
+}
+
+/* 章の帯。いまの章と、この先の章を並べる。
+   タップ先は manifest の go: "plan" か "note:<id>" */
+function renderChapterBar() {
+  const el = $('chapter-bar');
+  if (!el) return;
+  const chs = (contentManifest && contentManifest.chapters) || [];
+  el.hidden = !chs.length;
+  if (!chs.length) return;
+  const badge = { active: '進行中', next: '次', later: 'この先' };
+  el.innerHTML = chs.map((c, i) => `
+    <button class="chapter ${c.state || ''}" data-ch="${i}">
+      <span class="ch-badge">${escapeHtml(badge[c.state] || '')}</span>
+      <span class="ch-title"></span>
+      <span class="ch-desc"></span>
+    </button>`).join('');
+  chs.forEach((c, i) => {
+    const b = el.querySelector(`[data-ch="${i}"]`);
+    if (!b) return;
+    b.querySelector('.ch-title').textContent = c.title;
+    b.querySelector('.ch-desc').textContent = c.desc || '';
+    b.addEventListener('click', () => {
+      const go = c.go || '';
+      if (go === 'plan') return renderPlan();
+      const m = go.match(/^note:(.+)$/);
+      const n = m && ((contentManifest && contentManifest.notes) || [])
+        .find(x => x.id === m[1]);
+      if (n) openNote(n);
+    });
+  });
 }
 
 /* 残り日数 / 残りステップからペースを出す */
@@ -586,14 +620,20 @@ let decks = [];
 
 function renderContent() {
   showScreen('content');
-  // ノート一覧
+  // ノート一覧。manifest の group ごとに見出しを挟む（章がどこにあるか見えるように）
   const nl = $('note-list');
   const notes = (contentManifest && contentManifest.notes) || [];
-  nl.innerHTML = notes.length ? notes.map((n,i) => `
+  let last = null;
+  nl.innerHTML = notes.length ? notes.map((n,i) => {
+    const head = n.group && n.group !== last
+      ? `<li class="list-head">${escapeHtml(n.group)}</li>` : '';
+    last = n.group || last;
+    return head + `
     <li class="list-card" data-note="${i}">
       <div class="lc-info"><div class="lc-title"></div><div class="lc-desc"></div></div>
       <div class="lc-go">›</div>
-    </li>`).join('') : '<li class="dim" style="padding:8px">ノートがありません。</li>';
+    </li>`;
+  }).join('') : '<li class="dim" style="padding:8px">ノートがありません。</li>';
   notes.forEach((n,i) => {
     const li = nl.querySelector(`[data-note="${i}"]`);
     if (!li) return;

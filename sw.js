@@ -1,7 +1,7 @@
 /* My Study — Service Worker (オフライン対応) */
 /* 動画とサムネイルは ASSETS に入れない。入れると install で20MB落としにくる。
    network-first の fetch ハンドラが、一度見たものだけを後からキャッシュする */
-const CACHE = 'mystudy-v27';
+const CACHE = 'mystudy-v28';
 const ASSETS = [
   './',
   './index.html',
