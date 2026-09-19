@@ -25,6 +25,9 @@
 そして統計最大の落とし穴が**「相関は因果を意味しない」**。アイスの売上と水難事故は一緒に増えるが、原因は互いではなく夏（**交絡要因**）だ。集計の仕方で結論が逆転する**シンプソンのパラドックス**も同じ穴の仲間。
 
 ## 第3幕：学ぶ — 坂を下る（微分・最適化）
+> 🎬 **学習率で、収束も振動も発散もする**（67秒）
+<video src="content/video/g03_gradient.mp4" poster="content/video/poster/g03_gradient.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 「学習」の数学的な正体は驚くほど単純だ。**予測のまずさを損失関数で数値化し、損失が減る方向にパラメータを少しずつ動かす**。それだけの繰り返し。
 
 ```mermaid

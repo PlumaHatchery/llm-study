@@ -26,6 +26,9 @@ flowchart TD
 ちなみに近年のLLMを支える**自己教師あり学習**は、ラベルなしの文章から「次の単語を隠して当てさせる」という擬似問題を自動で作る手法。教師なしのデータで教師ありのように学ぶ、両者の橋渡しだ。
 
 ## 最大の敵：丸暗記する優等生
+> 🎬 **次数を上げていくと、訓練誤差と検証誤差が分かれる**（68秒）
+<video src="content/video/g02_overfitting.mp4" poster="content/video/poster/g02_overfitting.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 機械学習の物語には、全編を通して立ちはだかる敵がいる。**過学習（オーバーフィッティング）**だ。
 
 訓練データを丸暗記した優等生を想像してほしい。過去問は満点なのに、少しひねった初見の問題で崩れる。モデルも同じで、複雑すぎるモデルは訓練データのノイズや偶然まで「覚えて」しまい、**未知のデータで役に立たなくなる**。逆に単純すぎるモデルは、そもそも規則性を捉えられない（**未学習**）。
@@ -72,6 +75,9 @@ flowchart TD
 | F値 | PrecisionとRecallの調和平均 | 両方のバランス |
 
 適合率と再現率は**トレードオフ**の関係にある。判定を厳しくすれば誤検知は減るが見逃しが増え、緩くすればその逆。判定しきい値に依存しない総合評価には**ROC曲線とAUC**を使う。
+> 🎬 **しきい値を動かすと、適合率と再現率が逆に振れる → ROC曲線**（70秒）
+<video src="content/video/g01_threshold.mp4" poster="content/video/poster/g01_threshold.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 
 > 一言でいうとこの分野は、**「何を手がかりに学び（3パラダイム）、どう線を引き（各手法の思想）、丸暗記をどう防ぎ（過学習対策）、どう測るか（評価指標）」**の4幕の物語。
 
