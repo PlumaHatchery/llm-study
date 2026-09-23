@@ -18,6 +18,9 @@ flowchart LR
 なぜ「深く」したいのか。層を重ねると、各層が前の層の出力を組み合わせて、**単純な特徴から複雑な特徴を階層的に自動獲得**できるからだ（画像なら エッジ→模様→部品→物体）。それまで人間が手作業で設計していた特徴量を、機械が自分で見つける——これがディープラーニングの本質的な強みだ。
 
 ## 第一の壁：勾配が消える
+> 🎬 **0.25 を5回掛けると 0.001。ReLU とスキップ接続で何が変わるか**（71秒）
+<video src="content/video/g04_vanishing.mp4" poster="content/video/poster/g04_vanishing.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 ところが層を深くすると、逆伝播の途中で勾配が弱まり、入力に近い層まで届かなくなる。**勾配消失問題**だ。原因は掛け算にある。勾配は層をさかのぼるたびに**各層の微分を掛け算**されるが、当時主流の**シグモイド関数は微分が最大でも0.25**。1より小さい数を何度も掛ければ、値は指数的に0へ向かう。深い網の手前の層は、ほとんど学習されないまま放置された。
 
 この壁を崩した工夫たちが、G検定の頻出用語になっている。
@@ -34,6 +37,9 @@ flowchart LR
 アーキテクチャは「どんなデータ向けの偏り（帰納バイアス）を作り込んだか」で覚えると混ざらない。
 
 ### CNN — 画像の専門家
+> 🎬 **フィルタが滑り、プーリングが縮める**（72秒）
+<video src="content/video/g05_cnn.mp4" poster="content/video/poster/g05_cnn.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 ```mermaid
 flowchart LR
   I["画像"] --> C1["畳み込み<br/>特徴抽出"] --> P1["プーリング<br/>圧縮"] --> C2["畳み込み"] --> P2["プーリング"] --> FC["全結合"] --> O["分類"]
@@ -43,11 +49,17 @@ flowchart LR
 2012年、このCNN（**AlexNet**）が画像認識コンペILSVRCを制して第3次ブームに火をつけた。そして2015年の**ResNet**は「深くしすぎるとかえって精度が落ちる」問題を、**スキップ接続（残差接続）**——層の出力に入力をそのまま足す **y = F(x) + x** ——で解決した。足し算の迂回路を勾配がそのまま通れるので、100層を超える超深層でも勾配が消えない。ここでも敵は勾配消失だった。
 
 ### RNN → LSTM — 記憶をもつ読み手
+> 🎬 **昔の情報が薄れる。ゲートで通り道を守る**（73秒）
+<video src="content/video/g06_rnn_lstm.mp4" poster="content/video/poster/g06_rnn_lstm.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 文章や時系列は「順番」に意味がある。**RNN**は前の時刻の隠れ状態を次の時刻へ渡し、系列を順に読む。だが時間方向にも逆伝播（BPTT）で勾配の掛け算が起きるため、**長い系列では勾配が消え、昔の情報を覚えていられない**（長期依存の問題）。
 
 **LSTM**（1997, Hochreiter & Schmidhuber）はネットワークに「記憶セル」と**3つのゲート（入力・忘却・出力）**を持たせ、「何を覚え、何を忘れ、何を出すか」を学習で制御できるようにした。ゲートで守られた記憶の通り道が、勾配の通り道にもなる。**GRU**はその簡略版。
 
 ### Transformer — 全部を一度に見る
+> 🎬 **各語が全語を見渡す。代償は系列長の2乗**（73秒）
+<video src="content/video/g07_attention.mp4" poster="content/video/poster/g07_attention.jpg" controls preload="none" playsinline style="width:100%;border-radius:10px;margin:.5rem 0 .2rem"></video>
+
 それでもRNNには限界が残った。①1語ずつ順に処理するので**並列化できず遅い**、②離れた単語の関係が弱い。2017年、Googleの**Transformer**は「順に読むのをやめて、**各単語が文中の全単語を一度に見渡し、関連の強い単語から情報を集める**」という**自己注意（Self-Attention）**でこれを一挙に解決した。逐次処理がないのでGPUで並列計算でき、どんなに離れた単語も直接つながる。代償として、計算量は**系列長の2乗**に比例して膨らむ。語順の情報は**位置エンコーディング**で別途注入する。
 
 Transformerの上に「大量テキストで**事前学習**→タスクに**ファインチューニング**」という定番が築かれた。**BERT**はエンコーダ型（穴埋めで文を理解）、**GPT**はデコーダ型（次の単語を予測して文を生成）。ここからLLMの時代が始まる。
